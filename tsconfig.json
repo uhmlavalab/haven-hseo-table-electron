@@ -1,6 +1,14 @@
 {
   "compileOnSave": false,
   "compilerOptions": {
+    "paths": {
+      "@app/core": ["src/app/core"],
+      "@app/charts": ["src/app/modules/charts/"],
+      "@app/maps": ["src/app/modules/maps/"],
+      "@app/sounds": ["src/app/modules/sounds/"],
+      "@app/shared": ["src/app/modules/shared/"],
+     },
+    "baseUrl": "./",
     "module": "esnext",
     "outDir": "./dist/out-tsc",
     "sourceMap": true,
@@ -9,6 +17,7 @@
     "emitDecoratorMetadata": true,
     "experimentalDecorators": true,
     "target": "es5",
+    "downlevelIteration": true,
     "typeRoots": [
       "node_modules/@types"
     ],

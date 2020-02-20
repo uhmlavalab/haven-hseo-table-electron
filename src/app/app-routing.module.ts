@@ -1,21 +1,36 @@
 import { NgModule } from '@angular/core';
-import { Routes, RouterModule } from '@angular/router';
-import { PageNotFoundComponent } from './shared/components';
+import { RouterModule, Routes } from '@angular/router';
 
-const routes: Routes = [
+const appRoutes: Routes = [
   {
-    path: '',
-    redirectTo: 'home',
-    pathMatch: 'full'
+    path: 'landing',
+    loadChildren: () => import('./sections/landing/landing.module').then(mod => mod.LandingModule),
+  },
+  {
+    path: 'map-window',
+    loadChildren: () => import('./sections/map-window/map-window.module').then(mod => mod.MapWindowModule),
+  },
+  {
+    path: 'secondscreen-window',
+    loadChildren: () => import('./sections/secondscreen-window/secondscreen-window.module').then(mod => mod.SecondScreenWindowModule),
+  },
+  {
+    path: 'puck-window',
+    loadChildren: () => import('./sections/puck-window/puck-window.module').then(mod => mod.PuckWindowModule),
   },
   {
     path: '**',
-    component: PageNotFoundComponent
-  }
+    redirectTo: 'landing',
+    pathMatch: 'full',
+  },
 ];
 
 @NgModule({
-  imports: [RouterModule.forRoot(routes, { useHash: true })],
-  exports: [RouterModule]
+  imports: [
+    RouterModule.forRoot(appRoutes, { useHash: true })
+  ],
+  exports: [
+    RouterModule
+  ]
 })
-export class AppRoutingModule {}
+export class AppRoutingModule { }

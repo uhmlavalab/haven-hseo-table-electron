@@ -1,15 +1,15 @@
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
 
-import { ElectronService } from './services/electron.service';
+// Services
+import { SoundsService } from './services/sounds.service';
 
 @NgModule({
-  declarations: [],
   imports: [
     CommonModule
   ],
   providers: [
-    ElectronService
+    SoundsService
   ]
 })
-export class CoreModule { }
+export class SoundsModule { }

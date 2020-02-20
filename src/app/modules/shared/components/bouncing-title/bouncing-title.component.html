@@ -1,0 +1,7 @@
+<div class="bouncing-title-wrapper">
+  <span>
+    <span *ngFor="let tile of tileArray" [ngClass]="tile.id == bounceId ? active : normal">
+      {{ tile.text }}
+    </span> 
+  </span>
+</div>

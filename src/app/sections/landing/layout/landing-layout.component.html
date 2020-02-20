@@ -1,0 +1,12 @@
+
+<app-bouncing-title [title]="title" [freq]="1000"></app-bouncing-title>
+
+<router-outlet></router-outlet>
+
+
+<div style="position: absolute; right: 1rem; bottom: 1rem;">
+  <button  style="margin: 0.25rem; width: 8rem;" (click)="reset()">Restart</button>
+  <br >
+  <button style=" margin: 0.25rem; width: 8rem;" (click)="close()">Close</button>
+</div>
+
