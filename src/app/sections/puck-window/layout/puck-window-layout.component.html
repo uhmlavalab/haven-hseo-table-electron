@@ -1,1 +1,17 @@
 <p>puck-window-layout works!</p>
+
+<router-outlet></router-outlet>
+
+<div class="button-list" >
+  <button style="margin: 0.25rem; width: 8rem;" (click)="shiftLeft()">Left</button>
+  <br>
+  <button style=" margin: 0.25rem; width: 8rem;" (click)="shiftRight()">Right</button>
+  <br>
+  <button style=" margin: 0.25rem; width: 8rem;" (click)="calibration()">Calibration</button>
+  <br>
+  <button style=" margin: 0.25rem; width: 8rem;" (click)="running()">Run</button>
+<br>
+  <button style=" margin: 0.25rem; width: 8rem;" (click)="restart()">Restart</button>
+</div>
+
+<div class="right-edge"></div>

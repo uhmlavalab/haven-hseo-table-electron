@@ -2,7 +2,6 @@ import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
 
 // Modules
-import { CoreModule } from '@app/core';
 import { SharedModule } from '@app/shared';
 
 // Layout
@@ -21,7 +20,6 @@ import { ScreenSelectionComponent } from './routes/screen-selection/screen-selec
   imports: [
     CommonModule,
     LandingRoutingModule,
-    CoreModule,
     SharedModule
   ]
 })

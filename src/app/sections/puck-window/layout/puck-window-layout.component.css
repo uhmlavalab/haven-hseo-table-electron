@@ -1,0 +1,14 @@
+.right-edge {
+    width: 8px;
+    right: 0px;
+    height: 100vh;
+    top: 0px;
+    position: absolute;
+    background-color: white;;
+}
+
+.button-list {
+    position: absolute; 
+    left: 1rem; 
+    bottom: 1rem;
+}

@@ -2,6 +2,8 @@ import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
 
 import { ElectronService } from './services/electron.service';
+import { ArService} from './services/ar.service';
+import { PlanService } from './services/plan.service';
 
 @NgModule({
   declarations: [],
@@ -9,7 +11,9 @@ import { ElectronService } from './services/electron.service';
     CommonModule
   ],
   providers: [
-    ElectronService
+    ElectronService,
+    ArService,
+    PlanService
   ]
 })
 export class CoreModule { }

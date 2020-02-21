@@ -1,6 +1,9 @@
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
 
+// Modules
+import { MapsModule } from '@app/maps';
+
 // Layout
 import { MapWindowLayoutComponent } from './layout/map-window-layout.component';
 
@@ -12,7 +15,8 @@ import { MapWindowRoutingModule } from './map-window-routing-module';
   declarations: [MapWindowLayoutComponent],
   imports: [
     CommonModule,
-    MapWindowRoutingModule
+    MapWindowRoutingModule,
+    MapsModule
   ]
 })
 export class MapWindowModule { }

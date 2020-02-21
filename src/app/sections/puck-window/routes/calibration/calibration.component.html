@@ -1,0 +1,40 @@
+aoiajiojefo
+
+<div class="calibration-start-container">
+  <p class="calibration-start-instructions">
+    To calibrate the pucks, remove all but one puck from the table. Place this puck into the white circle with the dot
+    in the center. When the marker is detected, its coordinates will
+    be printed to the screen. Confirm that position and continue to the next until cablbration is completed.
+  </p><br />
+  <p>After completing initial calibration, you can adjust the x and y offset for both cameras using the arrow keys for
+    the lower camera and w, a, s, d for the upper camera. Place the puck on the table and
+    make the adjustment until the puck is centered in the tracking circle. When satisfied with the calibration, save the
+    file, overwriting the previous default tracking data file.
+
+  </p><br />
+  <div class="button-container">
+    <button class="selection-button" (click)="startCalibration()" [style.display]="calibrating ? 'none' : 'block'">Begin
+      Calibration</button>
+  </div>
+</div>
+
+<div class="calibration-overlay" [style.display]="calibrating ? 'block' : 'none'">
+  <div class="manual-point" #manualPoint>
+    <div class="center"></div>
+  </div>
+  <div class="manual-point-detection-container">
+    <div class="marker-detected-details">
+      Marker Currently Detected: {{ markerDetected }} <br />
+      Bottom Cam X: {{ centerX }} <br />
+      Bottom Cam Y: {{ centerY }} <br />
+      Top Cam X: {{ centerX2 }} <br />
+      Top Cam Y: {{ centerY2 }}
+    </div>
+    <div class="selection-button" (click)="confirmPosition()">
+      Confirm Position
+    </div>
+    <div class="warning" [style.opacity]="detectionWarning ? '1' : '0'">
+      Oops! Lost track of the marker, try again.
+    </div>
+  </div>
+</div>
