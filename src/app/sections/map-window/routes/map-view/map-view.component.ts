@@ -1,7 +1,8 @@
 import { Component, OnInit, ChangeDetectorRef, ViewChild } from '@angular/core';
 import { PlanService } from '@app/core';
 
-import { PieData, PieChartComponent, LineChartComponent } from '@app/charts';
+import { ChartData, PieChartComponent, LineChartComponent } from '@app/charts';
+import { MapElementComponent } from '@app/maps';
 
 @Component({
   selector: 'app-map-view',
@@ -13,6 +14,11 @@ export class MapViewComponent implements OnInit {
   year: number;
   scenario: number;
   layer: number;
+
+  @ViewChild('map' , {static: false}) map: MapElementComponent;
+  mapWidth = 600;
+  mapBounds = [[-158.281, 21.710], [-157.647, 21.252]];
+  baseImageURL = 'assets/plans/oahu/images/oahu-satellite5.png';
 
   @ViewChild('pieChart' , {static: false}) pieChart: PieChartComponent;
   pieSize = 300;
@@ -26,22 +32,22 @@ export class MapViewComponent implements OnInit {
   lineTitle = "Generation";
   lineLegend = false;
 
-  pieData: PieData = {
+  pieData: ChartData = {
     datasets: [
       {
         name: 'A',
         color: 'red',
         data: [
           {
-            year: 2001,
-            value: 6
+            x: 2001,
+            y: 6
           }, {
-            year: 2002,
-            value: 4
+            x: 2002,
+            y: 4
           },
           {
-            year: 2003,
-            value: 1
+            x: 2003,
+            y: 1
           },
         ]
       },
@@ -50,15 +56,15 @@ export class MapViewComponent implements OnInit {
         color: 'green',
         data: [
           {
-            year: 2001,
-            value: 3
+            x: 2001,
+            y: 3
           }, {
-            year: 2002,
-            value: 1
+            x: 2002,
+            y: 1
           },
           {
-            year: 2003,
-            value: 2
+            x: 2003,
+            y: 2
           },
         ]
       },
@@ -67,15 +73,15 @@ export class MapViewComponent implements OnInit {
         color: 'blue',
         data: [
           {
-            year: 2001,
-            value: 10
+            x: 2001,
+            y: 10
           }, {
-            year: 2002,
-            value: 1
+            x: 2002,
+            y: 1
           },
           {
-            year: 2003,
-            value: 8
+            x: 2003,
+            y: 8
           },
         ]
       },
@@ -105,7 +111,7 @@ export class MapViewComponent implements OnInit {
   }
 
   nextYear(year) {
-    this.pieChart.changeYear(year);
+    this.pieChart.changeXAxis(year);
   }
 
   changePieData() {
@@ -115,5 +121,6 @@ export class MapViewComponent implements OnInit {
   changePieSize() {
     this.pieSize--;
     this.lineSize--;
+    this.mapWidth--;
   }
 }

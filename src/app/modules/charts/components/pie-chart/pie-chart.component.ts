@@ -1,12 +1,6 @@
 import { Component, AfterViewInit, ViewChild, ElementRef, Input, OnChanges, SimpleChanges } from '@angular/core';
+import { ChartData } from '../../interfaces/ChartData';
 
-export interface PieData {
-  datasets: {
-    name: string,
-    color: string,
-    data: { year: number, value: number }[]
-  }[],
-}
 
 @Component({
   selector: 'app-pie-chart',
@@ -17,7 +11,7 @@ export class PieChartComponent implements AfterViewInit, OnChanges  {
 
 
   @ViewChild('pieDiv', { static: true }) chartDiv: ElementRef;
-  @Input() data: PieData;
+  @Input() data: ChartData;
   @Input() title: string;
   @Input() legend: boolean;
   @Input() fontSize: number;
@@ -45,7 +39,7 @@ export class PieChartComponent implements AfterViewInit, OnChanges  {
 
 
   private initialDataSetup() {
-    const year = this.data.datasets[0].data[0].year;
+    const year = this.data.datasets[0].data[0].x;
     this.currentData = {
       labels: [],
       datasets: [{
@@ -57,22 +51,22 @@ export class PieChartComponent implements AfterViewInit, OnChanges  {
       }]
     };
     this.data.datasets.forEach(trace => {
-      const slice = trace.data.find(slice => slice.year == year);
+      const slice = trace.data.find(slice => slice.x == year);
       if (slice) {
         this.currentData.labels.push(trace.name);
-        this.currentData.datasets[0].data.push(slice.value);
+        this.currentData.datasets[0].data.push(slice.y);
         this.currentData.datasets[0].backgroundColor.push(trace.color);
         this.currentData.datasets[0].borderColor.push('white');
       }
     });
   }
 
-  private updateYear(year: number) {
+  private updateXAxis(x: number) {
     const newData = [];
     this.data.datasets.forEach(trace => {
-      const slice = trace.data.find(slice => slice.year == year);
+      const slice = trace.data.find(slice => slice.x == x);
       if (slice) {
-        newData.push(slice.value);
+        newData.push(slice.y);
       }
     });
     this.currentData.datasets[0].data = newData;
@@ -129,15 +123,15 @@ export class PieChartComponent implements AfterViewInit, OnChanges  {
     });
   }
 
-  public changeYear(year: number) {
-    this.updateYear(year);
+  public changeXAxis(x: number) {
+    this.updateXAxis(x);
     this.updateChart();
   }
 
-  public changeData(data: PieData, year: number) {
+  public changeData(data: ChartData, x: number) {
     this.data = data;
     this.initialDataSetup();
-    this.updateYear(year)
+    this.updateXAxis(x)
     this.myChart.destroy();
     this.createPieChart(this.currentData);
   }

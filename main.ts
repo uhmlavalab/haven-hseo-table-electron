@@ -69,7 +69,7 @@ function createWindows() {
   })
 
   ipcMain.on('set-map-window', (evt, msg) => setMapWindow(evt.sender));
-
+  
   ipcMain.on('set-secondscreen-window', (evt, msg) => setSecondScreenWindow(evt.sender));
 
   ipcMain.on('clear-window-selections', (evt, msg) => cleanWindowSelections() );
@@ -127,6 +127,7 @@ function cleanWindowSelections() {
     puckWindow.close();
   }
   closeExtraWindows();
+  ipcMain.removeAllListeners();
   mapWindow = null;
   puckWindow = null;
   secondWindow = null;
@@ -152,16 +153,16 @@ function shiftPuckScreen(direction: string) {
     const pw = puckWindow.getSize()[0];
     const ph = puckWindow.getSize()[1];
     if (direction == 'left') {
-      puckWindow.setSize(pw - 4, ph);
-      mapWindow.setSize(mw + 4, mh);
-      mapWindow.setPosition(mx - 4, my)
-      configFile.puckWindowWidth -= 4;
+      puckWindow.setSize(pw - 2, ph);
+      mapWindow.setSize(mw + 2, mh);
+      mapWindow.setPosition(mx - 2, my)
+      configFile.puckWindowWidth -= 2
       saveConfigFile();
     } else if (direction == 'right') {
-      puckWindow.setSize(pw + 4, ph);
-      mapWindow.setSize(mw - 4, mh);
-      mapWindow.setPosition(mx + 4, my)
-      configFile.puckWindowWidth += 4;
+      puckWindow.setSize(pw + 2, ph);
+      mapWindow.setSize(mw - 2, mh);
+      mapWindow.setPosition(mx + 2, my)
+      configFile.puckWindowWidth += 2;
       saveConfigFile();
     }
   }

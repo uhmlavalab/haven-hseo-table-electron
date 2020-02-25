@@ -9,10 +9,11 @@
 <h3>LAYER: {{ layer }}</h3>
 
 <h2>MAP</h2>
-<app-map-element></app-map-element>
+<app-map-element #map [width]="mapWidth" [baseImage]="baseImageURL" [bounds]="mapBounds"></app-map-element>
 
 <app-pie-chart #pieChart [title]="pieTitle" [legend]="pieLegend" [fontSize]="pieFontSize" [size]="pieSize"
   [data]="pieData"></app-pie-chart>
 
   <app-line-chart #lineChart [title]="lineTitle" [legend]="lineLegend" [fontSize]="lineFontSize" [size]="lineSize"
   [data]="pieData"></app-line-chart>
+

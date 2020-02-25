@@ -1,12 +1,6 @@
 import { Component, AfterViewInit, ViewChild, ElementRef, Input, OnChanges, SimpleChanges } from '@angular/core';
+import { ChartData } from '../../interfaces/ChartData';
 
-export interface LineData {
-  datasets: {
-    name: string,
-    color: string,
-    data: { year: number, value: number }[]
-  }[],
-}
 
 @Component({
   selector: 'app-line-chart',
@@ -16,7 +10,7 @@ export interface LineData {
 export class LineChartComponent implements AfterViewInit, OnChanges {
 
   @ViewChild('lineDiv', { static: true }) chartDiv: ElementRef;
-  @Input() data: LineData;
+  @Input() data: ChartData;
   @Input() title: string;
   @Input() legend: boolean;
   @Input() fontSize: number;
@@ -58,8 +52,8 @@ export class LineChartComponent implements AfterViewInit, OnChanges {
         data: [],
       };
       trace.data.forEach(el => {
-        x.data.push({ x: el.year, y: el.value })
-        this.currentData.labels.push(el.year);
+        x.data.push({ x: el.x, y: el.y })
+        this.currentData.labels.push(el.y);
       });
       this.currentData.datasets.push(x);
     });
@@ -67,12 +61,12 @@ export class LineChartComponent implements AfterViewInit, OnChanges {
     console.log(this.currentData);
   }
 
-  private updateYear(year: number) {
+  private updateXAxis(x: number) {
     const newData = [];
     this.data.datasets.forEach(trace => {
-      const slice = trace.data.find(slice => slice.year == year);
+      const slice = trace.data.find(slice => slice.x == x);
       if (slice) {
-        newData.push(slice.value);
+        newData.push(slice.y);
       }
     });
     this.currentData.datasets[0].data = newData;
@@ -164,14 +158,14 @@ export class LineChartComponent implements AfterViewInit, OnChanges {
   }
 
   public changeYear(year: number) {
-    this.updateYear(year);
+    this.updateXAxis(year);
     this.updateChart();
   }
 
-  public changeData(data: LineData, year: number) {
+  public changeData(data: ChartData, x: number) {
     this.data = data;
     this.initialDataSetup();
-    this.updateYear(year)
+    this.updateXAxis(x)
     this.myChart.destroy();
     this.createLineChart(this.currentData);
   }
