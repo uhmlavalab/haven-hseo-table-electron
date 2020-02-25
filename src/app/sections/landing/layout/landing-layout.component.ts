@@ -13,9 +13,7 @@ export class LandingLayoutComponent  {
   titleFreq = 4;
 
   constructor(private router: Router, private activeRoute: ActivatedRoute, private electronService: ElectronService, private ngZone: NgZone) {
-    this.ngZone.run(() => {
-      this.router.navigate(['screen-selection'], { relativeTo: this.activeRoute });
-    });
+    this.rerouteToScreenSelection();
   }
 
   reset() {
@@ -24,6 +22,12 @@ export class LandingLayoutComponent  {
 
   close() {
     this.electronService.closeApplication();
+  }
+
+  rerouteToScreenSelection() {
+    this.ngZone.run(() => {
+      this.router.navigate(['screen-selection'], { relativeTo: this.activeRoute }); 
+    });
   }
 
 }

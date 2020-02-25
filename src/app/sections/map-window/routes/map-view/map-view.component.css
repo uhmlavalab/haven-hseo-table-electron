@@ -1,0 +1,11 @@
+app-pie-chart {
+  position: absolute;
+  right: 0;
+  top: 0;
+}
+
+app-line-chart {
+    position: absolute;
+    right: 0;
+    top: 50vh;
+}

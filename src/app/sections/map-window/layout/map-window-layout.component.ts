@@ -1,5 +1,6 @@
-import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
-import { PlanService } from '@app/core';
+import { Component, OnInit, NgZone } from '@angular/core';
+import { ActivatedRoute, Router } from '@angular/router';
+
 
 @Component({
   selector: 'app-map-window-layout',
@@ -8,28 +9,24 @@ import { PlanService } from '@app/core';
 })
 export class MapWindowLayoutComponent implements OnInit {
 
-  year: number;
-  scenario: number;
-  layer: number;
+  
+  constructor(private ngZone: NgZone, private activeRoute: ActivatedRoute, private router: Router) {
 
-  constructor(private planService: PlanService, private detectorRef: ChangeDetectorRef) { 
-   
   }
 
   ngOnInit(): void {
-    this.planService.currentYearSub.subscribe(year => {
-      this.year = year;
-      this.detectorRef.detectChanges();
-    });
+  this.rerouteToMapView();
+  }
 
-    this.planService.currentScenarioSub.subscribe(scenario => {
-      this.scenario = scenario;
-      this.detectorRef.detectChanges();
+  rerouteToMapView() {
+    this.ngZone.run(() => {
+      this.router.navigate(['map-view'], { relativeTo: this.activeRoute });
     });
+  }
 
-    this.planService.currentLayerSub.subscribe(layer => {
-      this.layer = layer;
-      this.detectorRef.detectChanges();
+  rerouteToMapWaiting() {
+    this.ngZone.run(() => {
+      this.router.navigate(['map-waiting'], { relativeTo: this.activeRoute });
     });
   }
 

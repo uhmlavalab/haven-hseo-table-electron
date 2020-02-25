@@ -1,0 +1,18 @@
+<p>map-view works!</p>
+<button (click)="nextYear(2001)">Year:2001</button>
+<button (click)="nextYear(2003)">Year:2003</button>
+<button (click)="changePieData()">CLICK Scenario</button>
+<button (click)="changePieSize()">CLICK CLICK</button>
+
+<h3>YEAR: {{ year }}</h3>
+<h3>SCENARIO: {{ scenario }}</h3>
+<h3>LAYER: {{ layer }}</h3>
+
+<h2>MAP</h2>
+<app-map-element></app-map-element>
+
+<app-pie-chart #pieChart [title]="pieTitle" [legend]="pieLegend" [fontSize]="pieFontSize" [size]="pieSize"
+  [data]="pieData"></app-pie-chart>
+
+  <app-line-chart #lineChart [title]="lineTitle" [legend]="lineLegend" [fontSize]="lineFontSize" [size]="lineSize"
+  [data]="pieData"></app-line-chart>
