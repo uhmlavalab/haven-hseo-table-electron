@@ -2,7 +2,6 @@ import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
 
 import { ElectronService } from './services/electron.service';
-import { ArService} from './services/ar.service';
 import { PlanService } from './services/plan.service';
 
 @NgModule({
@@ -12,7 +11,6 @@ import { PlanService } from './services/plan.service';
   ],
   providers: [
     ElectronService,
-    ArService,
     PlanService
   ]
 })

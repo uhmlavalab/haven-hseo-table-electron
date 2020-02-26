@@ -24,7 +24,7 @@ export class MapWindowLayoutComponent implements OnInit {
     });
   }
 
-  rerouteToMapWaiting() {
+  rerouteToWaitingScreen() {
     this.ngZone.run(() => {
       this.router.navigate(['map-waiting'], { relativeTo: this.activeRoute });
     });

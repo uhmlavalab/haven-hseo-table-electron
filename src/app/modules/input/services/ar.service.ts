@@ -1,10 +1,10 @@
 import { Injectable } from '@angular/core';
 import { ProjectableMarker } from '../classes/projectableMarker';
 import { TrackingPoint } from '../classes/trackingPoint';
-import { PlanService } from '../services/plan.service';
+import { InputService } from '../services/input.service';
 
-import { markers } from '../../../assets/defaultData/markers';
-import { defaultTrackingPoints } from '../../../assets/defaultData/defaultTrackingPoints.js'
+import { markers } from '../../../../assets/defaultData/markers';
+import { defaultTrackingPoints } from '../../../../assets/defaultData/defaultTrackingPoints.js'
 
 import { _ } from 'underscore';
 import AR from 'js-aruco';
@@ -49,7 +49,7 @@ export class ArService {
   * The tick cannot be started until there is at least one video element */
   private videoFeedArray: any[] = [];
 
-  constructor(private planService: PlanService) {
+  constructor(private inputService: InputService) {
 
     /* Aruco Js library requires AR.AR. for access */
     this.detector = new AR.AR.Detector();
@@ -64,7 +64,7 @@ export class ArService {
       marker.rotateLeft,
       marker.rotateRight,
       this,
-      this.planService,
+      inputService,
     ));
 
     this.trackingIsSet = true; // Tracking is always set.

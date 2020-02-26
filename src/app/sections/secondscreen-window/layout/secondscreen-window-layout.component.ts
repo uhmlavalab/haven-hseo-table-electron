@@ -1,5 +1,6 @@
-import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
+import { Component, OnInit, ChangeDetectorRef, NgZone } from '@angular/core';
 import { PlanService } from '@app/core';
+import { ActivatedRoute, Router } from '@angular/router';
 
 @Component({
   selector: 'app-secondscreen-window-layout',
@@ -8,29 +9,23 @@ import { PlanService } from '@app/core';
 })
 export class SecondscreenWindowLayoutComponent implements OnInit {
 
-
-  year: number;
-  scenario: number;
-  layer: number;
-
-  constructor(private planService: PlanService, private detectorRef: ChangeDetectorRef) { 
+  constructor(private ngZone: NgZone, private activeRoute: ActivatedRoute, private router: Router) { 
    
   }
 
   ngOnInit(): void {
-    this.planService.currentYearSub.subscribe(year => {
-      this.year = year;
-      this.detectorRef.detectChanges();
-    });
+    this.rerouteToSecondScreenView();
+  }
 
-    this.planService.currentScenarioSub.subscribe(scenario => {
-      this.scenario = scenario;
-      this.detectorRef.detectChanges();
+  rerouteToWaitingScreen() {
+    this.ngZone.run(() => {
+      this.router.navigate(['secondscreen-waiting'], { relativeTo: this.activeRoute });
     });
+  }
 
-    this.planService.currentLayerSub.subscribe(layer => {
-      this.layer = layer;
-      this.detectorRef.detectChanges();
+  rerouteToSecondScreenView() {
+    this.ngZone.run(() => {
+      this.router.navigate(['secondscreen-view'], { relativeTo: this.activeRoute });
     });
   }
 }

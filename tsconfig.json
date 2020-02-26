@@ -7,6 +7,7 @@
       "@app/maps": ["src/app/modules/maps/"],
       "@app/sounds": ["src/app/modules/sounds/"],
       "@app/shared": ["src/app/modules/shared/"],
+      "@app/input": ["src/app/modules/input/"],
      },
     "baseUrl": "./",
     "module": "esnext",

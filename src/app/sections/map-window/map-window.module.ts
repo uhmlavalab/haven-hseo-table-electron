@@ -18,7 +18,9 @@ import { MapWaitingComponent } from './routes/map-waiting/map-waiting.component'
 @NgModule({
   declarations: [
     MapWindowLayoutComponent, 
-    MapViewComponent, MapWaitingComponent],
+    MapViewComponent, 
+    MapWaitingComponent
+  ],
   imports: [
     CommonModule,
     MapWindowRoutingModule,

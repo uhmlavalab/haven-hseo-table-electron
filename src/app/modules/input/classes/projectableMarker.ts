@@ -1,5 +1,6 @@
 import { _ } from 'underscore';
-import { ArService, PlanService } from '@app/core';
+import { ArService } from '../services/ar.service';
+import { InputService } from '../services/input.service';
 
 
 /** Represents a projectable marker.  These are the tangibles that control
@@ -19,7 +20,7 @@ export class ProjectableMarker {
   private delay: number;              // Time delay that that stops excessive rotation.
   private minRotation: number;        // Minimum rotation allowed before a job is done.
   private arService: ArService;
-  private planService: PlanService;
+  private inputService: InputService;
   private dataPoints = [];            // All movement data is stored in this array.
   private enabled: boolean;           // True, ready to do job, false, wait for delay to elapse.
   private rotateLeft: any;            // Function called when rotated left
@@ -32,7 +33,7 @@ export class ProjectableMarker {
     rotateLeft: any,
     rotateRight: any,
     arService: ArService,
-    planService: PlanService) {
+    inputService: InputService) {
 
     this.markerId = id;
     this.job = job;
@@ -41,7 +42,7 @@ export class ProjectableMarker {
     this.rotateLeft = rotateLeft;
     this.rotateRight = rotateRight;
     this.arService = arService;
-    this.planService = planService;
+    this.inputService = inputService;
     ProjectableMarker.projectableMarkers[`${id}`] = this;
     ProjectableMarker.projectableMarkerArray.push(this);
     this.enabled = true;
@@ -219,10 +220,10 @@ export class ProjectableMarker {
         if (y > 1 && x > 1) {
           const direction = this.calcDirection(data);
           if (direction === 'left') {
-            this.rotateLeft(this.planService);
+            this.rotateLeft(this.inputService);
             this.disable();
           } else if (direction === 'right') {
-            this.rotateRight(this.planService);
+            this.rotateRight(this.inputService);
             this.disable();
           }
         }

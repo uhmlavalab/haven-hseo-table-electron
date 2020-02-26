@@ -1,5 +1,5 @@
 import { Component, OnInit, ViewChild, OnDestroy } from '@angular/core';
-import { ArService } from '@app/core';
+import { ArService } from '@app/input';
 
 
 @Component({

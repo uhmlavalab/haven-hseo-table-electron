@@ -1,5 +1,5 @@
 import { Component, OnInit, ViewChild, HostListener } from '@angular/core';
-import { ArService } from '@app/core';
+import { ArService } from '@app/input';
 import { _ } from 'underscore';
 
 @Component({

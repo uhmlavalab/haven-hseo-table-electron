@@ -1,0 +1,30 @@
+
+
+app-map-element {
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    position: absolute;
+}
+
+app-line-chart {
+    right: 1rem;
+    top: 1rem;
+    position: absolute;
+
+}
+
+app-pie-chart {
+    left: 1rem;
+    top: 1rem;
+    position: absolute;
+
+}
+
+app-layer-info {
+    position: absolute;
+    right: 1rem;
+    bottom: 1rem;
+    width: 25vw;
+    height: 55vh;
+}
