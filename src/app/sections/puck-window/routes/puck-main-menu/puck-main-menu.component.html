@@ -1,5 +1,14 @@
-<app-menu-button [text]="planText" [color]="planColor" [active]="planActive" class="menu-buttons"></app-menu-button>
+<!-- <app-menu-button [text]="planText" [color]="planColor" [active]="planActive" class="menu-buttons"></app-menu-button>
 <app-menu-button [text]="calText" [color]="calColor" [active]="calActive" class="menu-buttons"></app-menu-button>
 <app-menu-button [text]="restartText" [color]="restartColor" [active]="restartActive" class="menu-buttons"></app-menu-button>
-<app-menu-button [text]="exitText" [color]="exitColor" [active]="exitActive" class="menu-buttons"></app-menu-button>
+<app-menu-button [text]="exitText" [color]="exitColor" [active]="exitActive" class="menu-buttons"></app-menu-button> -->
 
+
+<app-video-feed width=100 height=100 feedNumber=0></app-video-feed>
+
+
+<app-left-right-puck #cursorPuck [markerId]="cursorId" [minRotation]="cursorMinRot" [delay]="cursorDelay"
+  [instructionText]="cursorText" (rotateLeft)="rotateLeft()" (rotateRight)="rotateRight()"></app-left-right-puck>
+
+<app-left-right-puck #enterPuck [markerId]="enterId" [minRotation]="enterMinRot" [delay]="enterDelay"
+  [instructionText]="enterText" (rotateLeft)="select()" (rotateRight)="select()"></app-left-right-puck>

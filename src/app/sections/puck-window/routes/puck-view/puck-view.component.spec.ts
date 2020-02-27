@@ -1,20 +1,20 @@
 import { async, ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { PuckActiveComponent } from './puck-active.component';
+import { PuckViewComponent } from './puck-view.component';
 
-describe('PuckActiveComponent', () => {
-  let component: PuckActiveComponent;
-  let fixture: ComponentFixture<PuckActiveComponent>;
+describe('PuckViewComponent', () => {
+  let component: PuckViewComponent;
+  let fixture: ComponentFixture<PuckViewComponent>;
 
   beforeEach(async(() => {
     TestBed.configureTestingModule({
-      declarations: [ PuckActiveComponent ]
+      declarations: [ PuckViewComponent ]
     })
     .compileComponents();
   }));
 
   beforeEach(() => {
-    fixture = TestBed.createComponent(PuckActiveComponent);
+    fixture = TestBed.createComponent(PuckViewComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
   });

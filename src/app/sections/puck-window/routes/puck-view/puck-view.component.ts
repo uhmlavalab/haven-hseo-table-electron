@@ -1,13 +1,14 @@
 import { Component, AfterViewInit, ViewChild, ElementRef } from '@angular/core';
 import { PuckService, ProjectableMarker } from '@app/input';
 import { YearPuckComponent } from 'src/app/modules/input/puck-input/components/year-puck/year-puck.component';
+import { ElectronService, AppInput } from '@app/core';
 
 @Component({
-  selector: 'app-puck-active',
-  templateUrl: './puck-active.component.html',
-  styleUrls: ['./puck-active.component.css']
+  selector: 'app-puck-view',
+  templateUrl: './puck-view.component.html',
+  styleUrls: ['./puck-view.component.css']
 })
-export class PuckActiveComponent implements AfterViewInit {
+export class PuckViewComponent implements AfterViewInit {
   /* HTML elements that are projected onto the pucks */
   @ViewChild('trackingDotYear', { static: false }) trackingDotYear;
   @ViewChild('trackingDotLayer', { static: false }) trackingDotLayer;
@@ -23,7 +24,7 @@ export class PuckActiveComponent implements AfterViewInit {
   yearMinrot = 10;
   yearDelay = 30;
 
-  constructor(private puckService: PuckService) {
+  constructor(private puckService: PuckService, private electronService: ElectronService) {
 
   }
 
@@ -31,54 +32,17 @@ export class PuckActiveComponent implements AfterViewInit {
     this.puckService.addMarker(this.YearPuck);
     this.puckService.markersSubject.subscribe({
       next: value => {
-        value.forEach(marker => this.track(marker));
+        value.forEach(marker => marker.updatePosition(this.YearDiv));
       }
     });
   }
 
-  /** Tracks the marker on the table
-   * @param marker The marker to be tracked.
-   */
-  private track(marker: ProjectableMarker) {
-    try {
-      const dataPoint = { x: null, y: null };
-      dataPoint.x = marker.getMostRecentCenterX();
-      dataPoint.y = marker.getMostRecentCenterY();
-
-      let element = null;
-      if (dataPoint.x !== null) {
-        switch (marker.getJob()) {
-          case 'year':
-            element = this.YearDiv.nativeElement;
-            break;
-          case 'layer':
-            element = this.trackingDotLayer.nativeElement;
-            break;
-          case 'scenario':
-            element = this.trackingDotScenario.nativeElement;
-            break;
-          case 'add':
-            element = this.trackingDotAdd.nativeElement;
-            break;
-        }
-        element.style.opacity = 1;
-        element.style.left = dataPoint.x + 25 + 'px';
-        element.style.top = dataPoint.y + 25 + 'px';
-
-      }
-
-    } catch (error) {
-      //undefined marker
-      console.log(error);
-    }
-  }
-
   rotateLeft() {
-    console.log('RotateLeft Active')
+    this.electronService.appInput(AppInput.left);
   }
 
   rotateRight() {
-    console.log('RotateRight Active')
+    this.electronService.appInput(AppInput.right);
   }
 
   // /** Draws a line between the layer puck element and the add puck element.

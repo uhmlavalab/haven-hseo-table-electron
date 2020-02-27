@@ -1,6 +1,6 @@
 import { _ } from 'underscore';
 import { InputService } from '../../services/input.service';
-import { Input, Output, EventEmitter } from '@angular/core';
+import { Input, Output, EventEmitter, ElementRef } from '@angular/core';
 import { PuckDataPoint } from '../interfaces/PuckDataPoint';
 
 
@@ -10,7 +10,6 @@ import { PuckDataPoint } from '../interfaces/PuckDataPoint';
 export class ProjectableMarker {
   
   @Input() markerId: number;
-  @Input() job: string;
   @Input() minRotation: number;
   @Input() delay: number;
 
@@ -42,19 +41,6 @@ export class ProjectableMarker {
    * ************************************************************************************************
    * */
 
-  /** Sets the job
-   * @param job the job to assign to this marker.
-   */
-  public setJob(job: string): void {
-    this.job = job;
-  }
-
-  /** Gets the marker's job
-   * @return the marker's job
-   */
-  public getJob(): string {
-    return this.job;
-  }
 
   public getId(): number {
     return this.markerId;
@@ -394,5 +380,14 @@ export class ProjectableMarker {
       theta = 360 - theta;
     }
     return theta;
+  }
+
+  public updatePosition(div: ElementRef) {
+    const x = this.getMostRecentCenterX();
+    const y = this.getMostRecentCenterY();
+    div.nativeElement.style.position = 'absolute';
+    div.nativeElement.style.opacity = 1;
+    div.nativeElement.style.left = x + 'px';
+    div.nativeElement.style.top = y +'px';
   }
 }

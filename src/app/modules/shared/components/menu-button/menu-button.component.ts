@@ -1,11 +1,11 @@
-import { Component, OnInit, Input, ViewChild, ElementRef, SimpleChanges } from '@angular/core';
+import { Component, AfterViewInit, Input, ViewChild, ElementRef, SimpleChanges } from '@angular/core';
 
 @Component({
   selector: 'app-menu-button',
   templateUrl: './menu-button.component.html',
   styleUrls: ['./menu-button.component.css']
 })
-export class MenuButtonComponent implements OnInit {
+export class MenuButtonComponent implements AfterViewInit {
 
   @ViewChild('background', { static: true }) backgroundDiv: ElementRef;
   @Input() text: string;
@@ -13,10 +13,11 @@ export class MenuButtonComponent implements OnInit {
   @Input() active: boolean;
 
   constructor() {
-    this.backgroundDiv.nativeElement.style.backgroundColor = this.color;
   }
 
-  ngOnInit(): void {
+  ngAfterViewInit(): void {
+    this.backgroundDiv.nativeElement.style.backgroundColor = this.color;
+
   }
 
   ngOnChanges(changes: SimpleChanges) {

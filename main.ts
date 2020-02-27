@@ -4,9 +4,16 @@ import * as url from 'url';
 import * as fs from 'fs';
 
 let windows: BrowserWindow[] = [];
+
 let puckWindow: BrowserWindow;
+let puckWindowMessenger: any;
+
 let mapWindow: BrowserWindow;
+let mapWindowMessenger: any;
+
 let secondWindow: BrowserWindow;
+let secondscreenWindowMessenger: any;
+
 const args = process.argv.slice(1), serve = args.some(val => val === '--serve');
 
 const dataDir = 'C:/ProgramData/ProjecTable';
@@ -79,18 +86,24 @@ function createWindows() {
   ipcMain.on('shift-puck-screen', (evt, msg) => shiftPuckScreen(msg.direction));
 
   ipcMain.on('close', () => closeProgram());
+
 }
+
 
 function setMapWindow(winWebContents: Electron.WebContents) { 
   windows.forEach(el => {
     if (el.webContents === winWebContents) {
       mapWindow = el;
       mapWindow.webContents.send('map-window-confirmation', 'Map Window successfully set.');
-      ipcMain.on('message-to-map-window', (evt, msg) => mapWindow.webContents.send('message-for-map-window', msg));
+      if (!mapWindowMessenger) {
+        mapWindowMessenger = ipcMain.on('message-to-map-window', (evt, msg) => mapWindow.webContents.send('message-for-map-window', msg));
+      }
       if (!puckWindow) {
         setupPuckWindow();
-        mapWindow.webContents.send('puck-window-confirmation', 'Puck Window successfully set.');
-        ipcMain.on('message-to-puck-window', (evt, msg) => puckWindow.webContents.send('message-for-puck-window', msg));
+        puckWindow.webContents.send('puck-window-confirmation', 'Puck Window successfully set.');
+        if (!puckWindowMessenger) {
+          puckWindowMessenger = ipcMain.on('message-to-puck-window', (evt, msg) => puckWindow.webContents.send('message-for-puck-window', msg));
+        }
       }
 
     }
@@ -105,7 +118,9 @@ function setSecondScreenWindow(winWebContents: Electron.WebContents) {
     if (el.webContents === winWebContents) {
       secondWindow = el;
       secondWindow.webContents.send('secondscreen-window-confirmation', 'SecondScreen Window successfully set.');
-      ipcMain.on('message-to-secondscreen-window', (evt, msg) => secondWindow.webContents.send('message-for-secondscreen-window', msg));
+      if (!secondscreenWindowMessenger) {
+        secondscreenWindowMessenger = ipcMain.on('message-to-secondscreen-window', (evt, msg) => secondWindow.webContents.send('message-for-secondscreen-window', msg));
+      }
     }
   })
   if (secondWindow && mapWindow && puckWindow) {
@@ -194,7 +209,7 @@ function setupWindow(display: Display): BrowserWindow {
       slashes: true
     }));
   }
-  return window;
+  return window; 
 }
 
 function setupPuckWindow() {

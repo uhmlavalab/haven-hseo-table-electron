@@ -1,7 +1,26 @@
 import { Injectable, NgZone } from '@angular/core';
 import { ipcRenderer } from 'electron';
-import { Subject } from 'rxjs';
+import { Subject, BehaviorSubject } from 'rxjs';
 import { Router } from '@angular/router';
+
+export enum AppRoutes {
+  mainmenu = 'main-menu',
+  planselection = 'plan-selection',
+  calibration = 'calibration',
+  view = 'view',
+  exit = 'exit',
+  restart = 'restart'
+}
+
+export enum AppInput {
+  enter = 'enter',
+  left = 'left',
+  right = 'right',
+  up = 'up',
+  down = 'down',
+  backward = 'backward',
+  forward = 'forward'
+}
 
 @Injectable({
   providedIn: 'root'
@@ -9,7 +28,9 @@ import { Router } from '@angular/router';
 export class ElectronService {
 
   windowName: string;
-  windowMessageSubject = new Subject<any>();
+  windowMessageSubject = new BehaviorSubject<any>(null);
+
+  rerouteSubject = new Subject<AppRoutes>();
 
   constructor(private router: Router, private ngZone: NgZone) {
     this.windowName = '';
@@ -55,7 +76,6 @@ export class ElectronService {
       ipcRenderer.removeListener('window-is-set', () => { });
       ipcRenderer.on('message-for-puck-window', (event, message) => this.puckWindowMessage(event, message));
       this.ngZone.run(() => {
-        console.log('navigate to puck-window')
         this.router.navigate(['puck-window']);
       });
     }
@@ -109,5 +129,26 @@ export class ElectronService {
 
   public shiftPuckScreenRight() {
     ipcRenderer.send('shift-puck-screen', { direction: 'right' });
+  }
+
+  public rerouteApp(route: AppRoutes) {
+    if (route == AppRoutes.restart) {
+      this.resetAllWindows();
+      return;
+    } else if (route == AppRoutes.exit) {
+      this.exit();
+      return;
+    } else {
+      this.sendMessage({type: 'reroute', route: route});
+      this.windowMessageSubject.next({ type: 'reroute', route: route });
+    }
+  }
+
+  public appInput(input: AppInput) {
+    this.sendMessage({type:'input', input: input})
+  }
+
+  public exit() {
+    ipcRenderer.send('close', null);
   }
 }

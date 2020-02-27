@@ -1,31 +1,63 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, ElementRef, ViewChild, AfterViewInit, OnDestroy } from '@angular/core';
+import { YearPuckComponent } from 'src/app/modules/input/puck-input/components/year-puck/year-puck.component';
+import { PuckService, ProjectableMarker } from 'src/app/modules/input';
+import { ElectronService, AppInput } from '@app/core';
+import { LeftRightPuckComponent } from 'src/app/modules/input/puck-input/components/left-right-puck/left-right-puck.component';
 
 @Component({
   selector: 'app-puck-main-menu',
   templateUrl: './puck-main-menu.component.html',
   styleUrls: ['./puck-main-menu.component.css']
 })
-export class PuckMainMenuComponent implements OnInit {
+export class PuckMainMenuComponent implements AfterViewInit, OnDestroy {
 
-  planText = "Select Plan"
-  planColor = "green";
-  planActive = true;
+  @ViewChild('cursorPuck', { static: false }) CursorPuck: LeftRightPuckComponent;
+  @ViewChild('cursorPuck', { static: false, read: ElementRef }) CursorDiv: ElementRef;
+  cursorId = 384;
+  cursorMinRot = 10;
+  cursorDelay = 30;
+  cursorText = "Rotate to Change Selection";
 
-  calText = "Puck Calibration"
-  calColor = "green";
-  calActive = false;
+  @ViewChild('enterPuck', { static: false }) EnterPuck: LeftRightPuckComponent;
+  @ViewChild('enterPuck', { static: false, read: ElementRef }) EnterDiv: ElementRef;
+  enterId = 5;
+  enterMinRot = 10;
+  enterDelay = 30;
+  enterText = "Rotate to Choose Selection";
 
-  restartText = "Restart";
-  restartColor = "yellow";
-  restartActive = false;
+  pucks: { marker: ProjectableMarker, div: ElementRef }[] = [];
 
-  exitText = "Exit";
-  exitColor = "red"
-  exitActive = false;
+  constructor(private puckService: PuckService, private electronService: ElectronService) { }
 
-  constructor() { }
-
-  ngOnInit(): void {
+  ngAfterViewInit(): void {
+    this.pucks.push({ marker: this.CursorPuck, div: this.CursorDiv });
+    this.pucks.push({ marker: this.EnterPuck, div: this.EnterDiv });
+    this.puckService.addMarker(this.CursorPuck);
+    this.puckService.addMarker(this.EnterPuck);
+    this.puckService.markersSubject.subscribe(value => {
+      value.forEach(marker => {
+        const puck = this.pucks.find(element => element.marker.markerId == marker.markerId);
+        if (puck) {
+          puck.marker.updatePosition(puck.div);
+        }
+      });
+    });
   }
 
+  ngOnDestroy() {
+    this.puckService.removeMarker(this.CursorPuck.markerId);
+    this.puckService.removeMarker(this.EnterPuck.markerId);
+  }
+
+  rotateLeft() {
+    this.electronService.appInput(AppInput.left);
+  }
+
+  rotateRight() {
+    this.electronService.appInput(AppInput.right);
+  }
+
+  select() {
+    this.electronService.appInput(AppInput.enter);
+  }
 }
