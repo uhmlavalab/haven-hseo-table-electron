@@ -6,15 +6,18 @@ import { InputService } from './services/input.service';
 
 import { YearPuckComponent } from './puck-input/components/year-puck/year-puck.component';
 import { VideoFeedComponent } from './puck-input/video-feed/video-feed.component';
+import { CalibrationComponent } from './puck-input/calibration/calibration.component';
 
 @NgModule({
   declarations: [
     YearPuckComponent,
-    VideoFeedComponent
+    VideoFeedComponent,
+    CalibrationComponent
   ],
   exports: [
     YearPuckComponent,
-    VideoFeedComponent
+    VideoFeedComponent,
+    CalibrationComponent
   ],
   imports: [
     CommonModule

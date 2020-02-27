@@ -16,13 +16,17 @@ import { SecondscreenViewComponent } from './routes/secondscreen-view/secondscre
 
 //Components
 import { LayerInfoComponent } from './components/layer-info/layer-info.component';
+import { SecondscreenPlanSelectionComponent } from './routes/secondscreen-plan-selection/secondscreen-plan-selection.component';
+import { SecondscreenMainMenuComponent } from './routes/secondscreen-main-menu/secondscreen-main-menu.component';
 
 @NgModule({
   declarations: [
     SecondscreenWindowLayoutComponent,
     SecondscreenWaitingComponent,
     SecondscreenViewComponent,
-    LayerInfoComponent
+    LayerInfoComponent,
+    SecondscreenPlanSelectionComponent,
+    SecondscreenMainMenuComponent
   ],
   imports: [
     CommonModule,

@@ -13,13 +13,16 @@ import { MapWindowLayoutComponent } from './layout/map-window-layout.component';
 import { MapWindowRoutingModule } from './map-window-routing-module';
 import { MapViewComponent } from './routes/map-view/map-view.component';
 import { MapWaitingComponent } from './routes/map-waiting/map-waiting.component';
+import { MapPlanSelectionComponent } from './routes/map-plan-selection/map-plan-selection.component';
+import { MapMainMenuComponent } from './routes/map-main-menu/map-main-menu.component';
 
 
 @NgModule({
   declarations: [
     MapWindowLayoutComponent, 
     MapViewComponent, 
-    MapWaitingComponent
+    MapWaitingComponent, 
+    MapPlanSelectionComponent, MapMainMenuComponent
   ],
   imports: [
     CommonModule,

@@ -11,7 +11,9 @@ import { PuckWindowLayoutComponent } from './layout/puck-window-layout.component
 // Routes
 import { PuckWindowRoutingModule } from './puck-window-routing.module';
 import { PuckMainMenuComponent } from './routes/puck-main-menu/puck-main-menu.component';
-import { PuckActiveComponent } from './routes/puck-active/puck-active.component';
+import { PuckViewComponent } from './routes/puck-view/puck-view.component';
+import { PuckCalibrationComponent } from './routes/puck-calibration/puck-calibration.component';
+import { PuckPlanSelectionComponent } from './routes/puck-plan-selection/puck-plan-selection.component';
 
 // Components
 
@@ -20,7 +22,9 @@ import { PuckActiveComponent } from './routes/puck-active/puck-active.component'
   declarations: [
     PuckWindowLayoutComponent,
     PuckMainMenuComponent,
-    PuckActiveComponent
+    PuckViewComponent,
+    PuckCalibrationComponent,
+    PuckPlanSelectionComponent
   ],
   imports: [
     CommonModule,

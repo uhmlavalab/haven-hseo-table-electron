@@ -11,13 +11,5 @@ export class InputService {
 
   }
 
-  puckLeft(puckId: number) {
-    console.log(puckId, 'LEFT')
-  }
-
-  puckRight(puckId: number) {
-    console.log(puckId, 'RIGHT')
-
-  }
 
 }

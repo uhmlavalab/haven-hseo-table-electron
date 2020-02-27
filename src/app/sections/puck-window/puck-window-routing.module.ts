@@ -4,9 +4,9 @@ import { RouterModule, Routes } from '@angular/router';
 import { PuckWindowLayoutComponent } from './layout/puck-window-layout.component';
 
 import { PuckMainMenuComponent } from './routes/puck-main-menu/puck-main-menu.component';
-import { PuckActiveComponent } from './routes/puck-active/puck-active.component';
-
-
+import { PuckViewComponent } from './routes/puck-view/puck-view.component';
+import { PuckCalibrationComponent } from './routes/puck-calibration/puck-calibration.component';
+import { PuckPlanSelectionComponent } from './routes/puck-plan-selection/puck-plan-selection.component';
 
 const puckRoutes: Routes = [
   {
@@ -14,12 +14,20 @@ const puckRoutes: Routes = [
     component: PuckWindowLayoutComponent,
     children: [
       {
-        path: 'main-menu',
+        path: 'puck-main-menu',
         component: PuckMainMenuComponent
       },
       {
-        path: 'running',
-        component: PuckActiveComponent
+        path: 'puck-view',
+        component: PuckViewComponent
+      },
+      {
+        path: 'puck-calibration',
+        component: PuckCalibrationComponent
+      },
+      {
+        path: 'puck-plan-selection',
+        component: PuckPlanSelectionComponent
       }
     ]
   }
