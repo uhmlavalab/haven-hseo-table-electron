@@ -1,28 +1,32 @@
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
 
+// Modules
+import { SharedModule } from '@app/shared';
+import { InputModule } from '@app/input';
+
 // Layout
 import { PuckWindowLayoutComponent } from './layout/puck-window-layout.component';
 
 // Routes
 import { PuckWindowRoutingModule } from './puck-window-routing.module';
-import { CalibrationComponent } from './routes/calibration/calibration.component';
+import { PuckMainMenuComponent } from './routes/puck-main-menu/puck-main-menu.component';
 import { PuckActiveComponent } from './routes/puck-active/puck-active.component';
 
 // Components
-import { VideoFeedComponent } from './components/video-feed/video-feed.component';
 
 
 @NgModule({
   declarations: [
     PuckWindowLayoutComponent,
-    VideoFeedComponent,
-    CalibrationComponent,
+    PuckMainMenuComponent,
     PuckActiveComponent
   ],
   imports: [
     CommonModule,
-    PuckWindowRoutingModule
+    PuckWindowRoutingModule,
+    SharedModule,
+    InputModule
   ]
 })
 export class PuckWindowModule { }

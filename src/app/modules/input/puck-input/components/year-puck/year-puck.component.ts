@@ -1,12 +1,12 @@
-import { Component, HostListener, AfterViewInit, ViewChildren, ViewChild } from '@angular/core';
-import { PlanService } from '@app/core';
+import { Component, HostListener, AfterViewInit, ViewChildren, ViewChild, Input, Output, EventEmitter } from '@angular/core';
+import { ProjectableMarker } from '../../classes/ProjectableMarker';
 
 @Component({
   selector: 'app-year-puck',
   templateUrl: './year-puck.component.html',
   styleUrls: ['./year-puck.component.css']
 })
-export class YearPuckComponent implements AfterViewInit {
+export class YearPuckComponent extends ProjectableMarker implements AfterViewInit {
 
   @ViewChildren('yearBoxWrapper') yearBoxes;
   @ViewChild('yearBoxWrapper', {static: false}) yearBoxWrapper;
@@ -19,7 +19,8 @@ export class YearPuckComponent implements AfterViewInit {
   private currentPosition: number;
   private YEAR_PUCK_COLOR: string = 'rgba(147, 93, 201)';
 
-  constructor(private planService: PlanService) {
+  constructor() {
+    super();
     this.currentPosition = 0;
     this.currentYear = 2016; //this.planService.getMinimumYear();
     this.numberOfYears = 10; //this.planService.getMaximumYear() - this.planService.getMinimumYear() + 1;
@@ -67,4 +68,6 @@ export class YearPuckComponent implements AfterViewInit {
 
     this.yearBoxWrapper.nativeElement.style.transform = 'rotate(-90deg)';
   }
+
+
 }

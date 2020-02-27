@@ -15,7 +15,7 @@ export class MapWindowLayoutComponent implements OnInit {
   }
 
   ngOnInit(): void {
-  this.rerouteToMapView();
+  this.rerouteToWaitingScreen();
   }
 
   rerouteToMapView() {

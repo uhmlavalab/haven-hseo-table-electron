@@ -1,5 +1,5 @@
 import { Component, OnInit, ViewChild, HostListener } from '@angular/core';
-import { ArService } from '@app/input';
+import { PuckService } from '../services/puck.service';
 import { _ } from 'underscore';
 
 @Component({
@@ -24,7 +24,7 @@ export class CalibrationComponent implements OnInit {
   private centerX2: number;                     // Bottom Camera X
   private centerY2: number;                     // Bottom Camera Y
 
-  constructor(private arservice: ArService) {
+  constructor(private arservice: PuckService) {
     //this.setupCalibrationData();
    }
 

@@ -2,8 +2,10 @@ import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
 
 import { PuckWindowLayoutComponent } from './layout/puck-window-layout.component';
-import { CalibrationComponent } from './routes/calibration/calibration.component';
+
+import { PuckMainMenuComponent } from './routes/puck-main-menu/puck-main-menu.component';
 import { PuckActiveComponent } from './routes/puck-active/puck-active.component';
+
 
 
 const puckRoutes: Routes = [
@@ -12,8 +14,8 @@ const puckRoutes: Routes = [
     component: PuckWindowLayoutComponent,
     children: [
       {
-        path: 'calibration',
-        component: CalibrationComponent
+        path: 'main-menu',
+        component: PuckMainMenuComponent
       },
       {
         path: 'running',

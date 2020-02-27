@@ -1,14 +1,15 @@
 import { Injectable } from '@angular/core';
-import { ProjectableMarker } from '../classes/projectableMarker';
-import { TrackingPoint } from '../classes/trackingPoint';
-import { InputService } from '../services/input.service';
-
-import { markers } from '../../../../assets/defaultData/markers';
-import { defaultTrackingPoints } from '../../../../assets/defaultData/defaultTrackingPoints.js'
 
 import { _ } from 'underscore';
 import AR from 'js-aruco';
 import { Subject } from 'rxjs';
+import { VideoFeed } from '../interfaces/VideoFeed';
+
+import { defaultTrackingPoints } from './defaultTrackingPoints';
+import { ProjectableMarker } from '../classes/ProjectableMarker';
+import { TrackingPoint } from '../classes/trackingPoint';
+import { PuckDataPoint } from '../interfaces/PuckDataPoint';
+
 
 @Injectable({
   providedIn: 'root'
@@ -16,18 +17,19 @@ import { Subject } from 'rxjs';
 
 /* This servce contains all the functions and data that controls
 * the ar interaction with the pucks and markers */
-export class ArService {
+export class PuckService {
 
   private detector: any; // Aruco JS detector object
   private tickFunction = null; // Tick function bound to this variable.
+  private animationStarted = false;
 
   /* State Variables */
   private calibrating: boolean; // Is the table in calibration mode?
 
   /* Subjects */
-  public markerSubject = new Subject<ProjectableMarker[]>();
+  public markersSubject = new Subject<ProjectableMarker[]>();
   public calibrationSubject = new Subject<any>();
-  public trackingSubject = new Subject<any>();
+
 
   /* Tracking Variables */
   private trackingPoints: TrackingPoint[] = [];
@@ -45,27 +47,18 @@ export class ArService {
   private xOffset2: number;
   private trackingIsSet: boolean;
 
+
   /* The array holding the video feeds is created by the video feed components.
   * The tick cannot be started until there is at least one video element */
-  private videoFeedArray: any[] = [];
+  private videoFeedArray: VideoFeed[] = [];
+  private markers: ProjectableMarker[] = [];
 
-  constructor(private inputService: InputService) {
+  constructor() {
 
     /* Aruco Js library requires AR.AR. for access */
     this.detector = new AR.AR.Detector();
     this.tickFunction = this.tick.bind(this);
 
-    // Create the projectable markers from the default data.
-    markers.forEach(marker => new ProjectableMarker(
-      marker.markerId,
-      marker.job,
-      marker.minRotation,
-      marker.delay,
-      marker.rotateLeft,
-      marker.rotateRight,
-      this,
-      inputService,
-    ));
 
     this.trackingIsSet = true; // Tracking is always set.
 
@@ -79,6 +72,19 @@ export class ArService {
 
   }
 
+  // Add A Marker to the array of markers
+  public addMarker(marker: ProjectableMarker) {
+    console.log(marker);
+    this.markers.push(marker);
+  }
+
+  // Remove a marker from the array of markers
+  public removeMarker(markerId: number) {
+    this.markers.splice(this.markers.findIndex((el) => {
+      return el.getId() === markerId;
+    }), 1);
+  }
+
   /******************************************************************************************************************************* 
   ***************** Detects the Markers and makes the changes in the program.  This is the Main Loop that runs the table. ********
   ****************************************************************************************************************************** */
@@ -87,7 +93,7 @@ export class ArService {
     /* Holds the raw aruco marker data from each camera */
     const tempMarkerData = [];
 
-    this.videoFeedArray.forEach(videoFeed => {
+    this.videoFeedArray.forEach(videoFeed => {    
       if (videoFeed.video.readyState === videoFeed.video.HAVE_ENOUGH_DATA) {
 
         // Collect the Image data for the detector
@@ -95,17 +101,18 @@ export class ArService {
 
         // Returns an array of active arucojs markers.
         const arucoMarkers = this.detector.detect(imageData);
-        // Run detect marker for each one
 
+        // Run detect marker for each one
         arucoMarkers.forEach(marker => {
-          if (ProjectableMarker.isValidMarker(marker.id)) {
+          const mark = this.markers.find(el => el.getId() == marker.id);
+    
+          if (mark) {
             tempMarkerData.push({
-              marker: ProjectableMarker.getProjectableMarkerById(marker.id),
+              marker: mark,
               corners: marker.corners,
-              camera: videoFeed.id
-            });
-          } else {
-            console.log(`Undefined Marker: ID -> ${marker.id}`);
+              cameraId: videoFeed.id,
+              convertedPoints: null
+            } as PuckDataPoint);
           }
         });
       }
@@ -119,43 +126,68 @@ export class ArService {
     }
   }
 
-  /** Takes the raw data for the markers and runs the calibration loop
-   * @param data marker detected data 
-   */
-  private decodeCalibrationData(data) {
-
-    this.calibrationSubject.next(data);
-    requestAnimationFrame(this.tickFunction);
-  }
-
   /** Takes all captured marker data that was collected by arucojs detector object.  All marker location
-   * data is in the coordinates generated by the video feed canvas and it must be converted to the map
-   * coordinates before it is stored and the tracking is done.
-   * @param markerData Raw data collected from the arucojs detector.
-   */
+ * data is in the coordinates generated by the video feed canvas and it must be converted to the map
+ * coordinates before it is stored and the tracking is done.
+ * @param markerData Raw data collected from the arucojs detector.
+ */
   private unpackData(markerData) {
-
-    ProjectableMarker.getAllProjectableMarkersArray().forEach(pm => {
-      const dataPoint = _.find(markerData, m => m.marker.markerId === pm.markerId);
-      pm.addDataPoint(dataPoint);
+    this.markers.forEach(pm => {
+      const dataPoint = _.find(markerData, m => m.marker.markerId === pm.getId()) as PuckDataPoint;
+      if (dataPoint) {
+        dataPoint.convertedPoints = this.convertCornersToMap(dataPoint);
+        dataPoint.center = this.calculateCenterToMap(dataPoint);
+        pm.addDataPoint(dataPoint);
+      }
     });
 
     // Publish the locations for tracking.
-    this.trackingSubject.next(ProjectableMarker.getAllProjectableMarkersArray());
+    this.markersSubject.next(this.markers);
     this.runMarkers();
   }
 
+  /** Converts data points from the camera location coordinates to the map coordinates
+ * @param point the data in cam coordinates
+ * @return the converted coordinates.
+ */
+  private convertCornersToMap(point: PuckDataPoint) {
+    const convertedPoints = [];
+    point.corners.forEach(corner => {
+      convertedPoints.unshift(this.track(corner.x, corner.y, point.cameraId));
+    });
+    return convertedPoints;
+  }
+
+  /** Uses the track method to convert any point to map coordinates.
+   * @param dataPoint Camera coordinates and cam id.
+   * @return the map coordinates.
+   */
+  public calculateCenterToMap(dataPoint) {
+    return this.track(this.getCenterX(dataPoint.corners), this.getCenterY(dataPoint.corners), dataPoint.camera);
+  }
+
+
   /** Checks to see if the markers were moved and if they were rotated.  If they were moved 
-   * and rotated, they are loaded into a queue and their jobs are executed before the next frame is captured.
-  */
+ * and rotated, they are loaded into a queue and their jobs are executed before the next frame is captured.
+*/
   private runMarkers() {
-    ProjectableMarker.getAllProjectableMarkersArray().forEach(pm => {
+    this.markers.forEach(pm => {
       if (pm.wasMoved()) {
         pm.wasRotated();
       }
     });
     requestAnimationFrame(this.tickFunction);
   }
+
+
+  /** Takes the raw data for the markers and runs the calibration loop
+   * @param data marker detected data 
+   */
+  private decodeCalibrationData(data) {
+    this.calibrationSubject.next(data);
+    requestAnimationFrame(this.tickFunction);
+  }
+
 
   /**
    * Creates an image from the video feed so that the app can look for markers.
@@ -174,11 +206,12 @@ export class ArService {
    * @param videoFeeds => An array holding all instantiated video feeds.  They
    *                      contain a video element and a canavas element.
    */
-  public runApplication(videoFeeds: any): any {
-    this.videoFeedArray = videoFeeds;
+  public addVideoFeed(videoFeed: VideoFeed): any {
+    this.videoFeedArray.push(videoFeed);
     if (this.videoFeedArray.length === 0) {
       console.log('Video Elements Not Instantiated');
-    } else {
+    } else if (!this.animationStarted) {
+      this.animationStarted = true;
       requestAnimationFrame(this.tickFunction);
     }
   }
@@ -237,13 +270,6 @@ export class ArService {
     this.trackingPoints.push(new TrackingPoint(camX, camY, cam2X, cam2Y, mapX, mapY));
   }
 
-  /** Uses the track method to convert any point to map coordinates.
-   * @param dataPoint Camera coordinates and cam id.
-   * @return the map coordinates.
-   */
-  public convertCamCoordinatesToMapCoordinates(dataPoint) {
-    return this.track(this.getCenterX(dataPoint.corners), this.getCenterY(dataPoint.corners), dataPoint.camera);
-  }
 
   /**
 * Gets the center X position of the marker.
@@ -383,5 +409,8 @@ export class ArService {
   public getTrackingPointId(): number {
     return this.trackingPoints.length;
   }
+
+
+
 }
 

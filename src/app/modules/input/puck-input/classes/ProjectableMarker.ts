@@ -1,101 +1,38 @@
 import { _ } from 'underscore';
-import { ArService } from '../services/ar.service';
-import { InputService } from '../services/input.service';
+import { InputService } from '../../services/input.service';
+import { Input, Output, EventEmitter } from '@angular/core';
+import { PuckDataPoint } from '../interfaces/PuckDataPoint';
 
 
 /** Represents a projectable marker.  These are the tangibles that control
 *   The user interaction with the table.  Each projectable marker is connected
 *   to a arucojs marker by the markerId number */
 export class ProjectableMarker {
+  
+  @Input() markerId: number;
+  @Input() job: string;
+  @Input() minRotation: number;
+  @Input() delay: number;
+
+  @Output() rotateLeft = new EventEmitter();
+  @Output() rotateRight = new EventEmitter();
+  rotatedLeft () { this.rotateLeft.emit(true) };
+  rotatedRight () { this.rotateRight.emit(true) };;
 
   /* private static variables */
-  private static projectableMarkers: object = {};                    // Markers are stored in an Object
-  private static projectableMarkerArray: ProjectableMarker[] = [];   // Markers are also stored in an Array
-  private static MAX_HISTORY = 40;                                   // Length of array holding historical position data.
-  private static MAX_ROTATION_DEGREES = 300;                         // If rotation is larger than this, it is ignored.
+  private MAX_HISTORY = 40;                                   // Length of array holding historical position data.
+  private MAX_ROTATION_DEGREES = 300;                         // If rotation is larger than this, it is ignored.
 
-  /* private member variables */
-  private markerId: number;           // Id that cooresponds to arucojs marker
-  private job: string;                // Job that cooresponds to job objects
-  private delay: number;              // Time delay that that stops excessive rotation.
-  private minRotation: number;        // Minimum rotation allowed before a job is done.
-  private arService: ArService;
-  private inputService: InputService;
-  private dataPoints = [];            // All movement data is stored in this array.
+  private dataPoints: {point: PuckDataPoint, used: boolean}[] = [];            // All movement data is stored in this array.
   private enabled: boolean;           // True, ready to do job, false, wait for delay to elapse.
-  private rotateLeft: any;            // Function called when rotated left
-  private rotateRight: any;           // Function called when rotated right
 
-  constructor(id: number,
-    job: string,
-    minRotation: number,
-    delay: number,
-    rotateLeft: any,
-    rotateRight: any,
-    arService: ArService,
-    inputService: InputService) {
+  private leftPosition: number;
+  private rightPosition: number;
 
-    this.markerId = id;
-    this.job = job;
-    this.minRotation = minRotation;
-    this.delay = delay;
-    this.rotateLeft = rotateLeft;
-    this.rotateRight = rotateRight;
-    this.arService = arService;
-    this.inputService = inputService;
-    ProjectableMarker.projectableMarkers[`${id}`] = this;
-    ProjectableMarker.projectableMarkerArray.push(this);
+
+
+  constructor() {
     this.enabled = true;
-  }
-
-
-  /** **********************************************************************************************
-   * ***************************** STATIC FUNCTIONS ************************************************
-   * ***********************************************************************************************
-   * ***********************************************************************************************
-   */
-
-
-  /** Gets all of the projectable markers in an array
-   * @return Array of projectable marker objects.
-   */
-  public static getAllProjectableMarkersArray(): any[] {
-    return ProjectableMarker.projectableMarkerArray;
-  }
-
-  /** Returns a single projectable marker object
-  * @param id => The id of the marker to return
-  * @return the marker whose id matches
-  */
-  public static getProjectableMarkerById(id: number) {
-    return ProjectableMarker.projectableMarkers[`${id}`];
-  }
-
-  /** Returns a single projectable marker object
-  * @param id => The id of the marker to return
-  * @return the marker whose id matches
-  */
-  public static getProjectableMarkerByJob(job: string) {
-    const marker = _.filter(ProjectableMarker.projectableMarkers, marker => marker.job === job);
-    return marker[0];
-  }
-
-  /** Gets all projectable markers.  Key is the marker id
-  * @return all markers
-  */
-  public static getAllProjectableMarkers() {
-    return ProjectableMarker.projectableMarkers;
-  }
-
-  /** Checks to see if a marker is currently used with the program
-   * @return false if marker is not active, true if it is.
-   */
-  public static isValidMarker(idNumber: number): boolean {
-    if (ProjectableMarker.projectableMarkers[idNumber] === undefined) {
-      return false;
-    } else {
-      return true;
-    }
   }
 
   /**************************************************************************************************
@@ -119,6 +56,10 @@ export class ProjectableMarker {
     return this.job;
   }
 
+  public getId(): number {
+    return this.markerId;
+  }
+
   /** Gets the movement data for this marker.
    * @return an Array of movement datapoints
    */
@@ -126,11 +67,11 @@ export class ProjectableMarker {
     const movementData = [];
     this.dataPoints.forEach((point, index) => {
       if (point !== null && !point.used) {
-          movementData.push({
-            corners: point.pointData.points,
-            camera: point.pointData.camera,
-            location: index
-          });
+        movementData.push({
+          corners: point.point.corners,
+          camera: point.point.cameraId,
+          location: index
+        });
       }
     });
     return movementData;
@@ -174,9 +115,9 @@ export class ProjectableMarker {
    * @return the x coordinate of the marker.
   */
   public getMostRecentCenterX() {
-    const corners = _.find(this.dataPoints, point => point !== null);
-    if (corners !== undefined) {
-      return this.getCenterX(corners.pointData.points);
+    const point = _.find(this.dataPoints, point => point !== null);
+    if (point !== undefined) {
+      return this.getCenterX(point.point.corners);
     } else {
       return null;
     }
@@ -186,13 +127,13 @@ export class ProjectableMarker {
    * @return the y position of the marker in map coordinates.
    */
   public getMostRecentCenterY() {
-    const corners = _.find(this.dataPoints, point => point !== null);
-    if (corners !== undefined) {
-      return this.getCenterY(corners.pointData.points);
+    const point = _.find(this.dataPoints, point => point !== null);
+    if (point !== undefined) {
+      return this.getCenterY(point.point.corners);
     } else {
       return null;
     }
-    
+
   }
 
   /** ***********************************************************************************************
@@ -220,10 +161,10 @@ export class ProjectableMarker {
         if (y > 1 && x > 1) {
           const direction = this.calcDirection(data);
           if (direction === 'left') {
-            this.rotateLeft(this.inputService);
+            this.rotatedLeft();
             this.disable();
           } else if (direction === 'right') {
-            this.rotateRight(this.inputService);
+            this.rotatedRight();
             this.disable();
           }
         }
@@ -309,22 +250,13 @@ export class ProjectableMarker {
     return angle * 180 / Math.PI;
   }
 
-
-  /** gets the current time of the system in milliseconds
-  * @return the current time
-  */
-  private getCurrentTime() {
-    const date = new Date();
-    return date.getTime();
-  }
-
   /** Calculate the direction that the marker was turned.
   * @return the direction that it was turned
   */
   private calcDirection(data) {
 
     const rotations = [];
-    data.forEach( point => {
+    data.forEach(point => {
       if (!point.used) {
         rotations.push(this.calcRotation(point.corners));
         point.used = true;
@@ -374,10 +306,10 @@ export class ProjectableMarker {
   /** Adds a data point to the array of data.  If the marker was not detected, a null is added.
    * @param point The location and camera data for the marker.
    */
-  public addDataPoint(point) {
+  public addDataPoint(point: PuckDataPoint) {
     if (point !== undefined) {
-      if (!this.seenInOtherCamera(point.camera)) {
-        this.dataPoints.unshift({pointData: this.convertPointToMap(point), used: false});
+      if (!this.seenInOtherCamera(point.cameraId)) {
+        this.dataPoints.unshift({ point: point, used: false });
       } else {
         this.dataPoints.unshift(null);
       }
@@ -386,7 +318,7 @@ export class ProjectableMarker {
     }
 
     // Remove the last point when you fill the array.
-    if (this.dataPoints.length > ProjectableMarker.MAX_HISTORY) {
+    if (this.dataPoints.length > this.MAX_HISTORY) {
       this.dataPoints.pop();
     }
 
@@ -401,24 +333,66 @@ export class ProjectableMarker {
     let seen = false;
     this.dataPoints.forEach((point, index) => {
       if (point !== null) {
-        if ((index <= this.dataPoints.length * 0.2) && (point.pointData.camera !== camera)) {
+        if ((index <= this.dataPoints.length * 0.2) && (point.point.cameraId !== camera)) {
           seen = true;
         }
       }
     });
     return seen;
-    
+
   }
 
-  /** Converts data points from the camera location coordinates to the map coordinates
-   * @param point the data in cam coordinates
-   * @return the converted coordinates.
+  /** Get the quadrant of the unit circle
+ * @param x the distance from the origin along x axis
+ * @param y the distance from the origin along the y axis
+ */
+  public getQuadrant(x: number, y: number) {
+    let quadrant = 0;
+    if (x <= 0 && y <= 0) {
+      quadrant = 2;
+    } else if (x > 0 && y <= 0) {
+      quadrant = 1;
+    } else if (x >= 0 && y > 0) {
+      quadrant = 4;
+    } else {
+      quadrant = 3;
+    }
+    return quadrant;
+  }
+  public convertRadsToDegrees(theta): number {
+    return theta * (180 / Math.PI);
+  }
+
+  public getTheta(opposite: number, adjacent: number): number {
+    return Math.atan(opposite / adjacent);
+  }
+
+  public getAdjacent(a: number, b: number): number {
+    return Math.abs(a - b);
+  }
+
+  public getOpposite(a: number, b: number): number {
+    return Math.abs(a - b);
+  }
+
+  public getHypotenuse(a: number, b: number): number {
+    return Math.sqrt(Math.pow(a, 2) + Math.pow(b, 2));
+  }
+
+  /* Math/Trig Functions */
+  /** Adjusts the angle calculation depending on quadrant
+   * @theta the angle as calculated by the arc tan function
+   * @quadrant the quadrant of the unit circle
    */
-  private convertPointToMap(point) {
-    const convertedPoints = [];
-    point.corners.forEach(corner => {
-      convertedPoints.unshift(this.arService.track(corner.x, corner.y, point.camera));
-    });
-    return {points: convertedPoints, camera: point.camera};
+  public adjustTheta(theta, quadrant) {
+    theta = theta;
+    if (quadrant === 2) {
+      theta = 180 - theta;
+    } else if (quadrant === 3) {
+      theta = 180 + theta;
+    } else if (quadrant === 4) {
+      theta = 360 - theta;
+    }
+    return theta;
   }
 }
