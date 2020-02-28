@@ -148,6 +148,10 @@ export class ElectronService {
     this.sendMessage({type:'input', input: input})
   }
 
+  public appStateUpdate(stateType) {
+
+  }
+
   public exit() {
     ipcRenderer.send('close', null);
   }

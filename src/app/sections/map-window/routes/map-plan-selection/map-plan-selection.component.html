@@ -1,3 +1,5 @@
+<div class="title">{{ title }}</div>
+
 <div class="grid-container">
-    <div class="grid-item" *ngFor="let plan of availablePlans"> {{ plan.name }} </div>
-  </div>
+  <div class="grid-item" *ngFor="let option of menuOptions" [style.backgroundColor]="option.selected ? '#00D2FF' : '#FF2D00'" (click)="option.click()"> {{ option.name }} </div>
+</div>

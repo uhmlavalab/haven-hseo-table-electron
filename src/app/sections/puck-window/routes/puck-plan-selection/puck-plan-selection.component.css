@@ -1,0 +1,8 @@
+.menuButtons {
+    width: 40vw;
+    height: 5vh;
+  }
+  
+  app-video-feed {
+    visibility: hidden;
+  }

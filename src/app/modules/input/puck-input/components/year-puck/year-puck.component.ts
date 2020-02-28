@@ -1,4 +1,4 @@
-import { Component, HostListener, AfterViewInit, ViewChildren, ViewChild, Input, Output, EventEmitter } from '@angular/core';
+import { Component, HostListener, AfterViewInit, ViewChildren, ViewChild, Input, SimpleChanges, ChangeDetectorRef } from '@angular/core';
 import { ProjectableMarker } from '../../classes/ProjectableMarker';
 
 @Component({
@@ -11,45 +11,50 @@ export class YearPuckComponent extends ProjectableMarker implements AfterViewIni
   @ViewChildren('yearBoxWrapper') yearBoxes;
   @ViewChild('yearBoxWrapper', {static: false}) yearBoxWrapper;
 
+  @Input() minYear: number;
+  @Input() maxYear: number;
+  @Input() currentYear: number;
+
   private numberOfYears: number;
   private years: {year: number, filled: boolean}[] = [];
-  private currentYear: number;
+
   private angle: number;
   private yearBoxElements: any[];
   private currentPosition: number;
   private YEAR_PUCK_COLOR: string = 'rgba(147, 93, 201)';
 
-  constructor() {
+  constructor(private detectorRef: ChangeDetectorRef) {
     super();
-    this.currentPosition = 0;
-    this.currentYear = 2016; //this.planService.getMinimumYear();
-    this.numberOfYears = 10; //this.planService.getMaximumYear() - this.planService.getMinimumYear() + 1;
-    for (let i = 0; i < this.numberOfYears; i++) {
-      this.years.push({year: i + 2016, filled: false});
-    }
    }
 
   ngAfterViewInit() {
+    this.currentPosition = 0;
+    this.numberOfYears = this.maxYear - this.minYear + 1;
+    for (let i = 0; i < this.numberOfYears; i++) {
+      this.years.push({year: i + this.minYear, filled: false});
+    }
+    this.detectorRef.detectChanges();
     this.yearBoxElements = this.yearBoxes.first.nativeElement.children;
     this.positionElements(this.yearBoxElements);
     this.colorNodes();
-
-    // this.planService.yearSubject.subscribe(year => {
-    //   this.currentYear = year;
-    //   this.colorNodes();
-    // })
   }
 
+  ngOnChanges(changes: SimpleChanges) {
+    if (changes.currentYear) {
+      this.currentYear = changes.currentYear.currentValue;
+      this.colorNodes();
+    }
+  }
 
   /** Colors each of the year nodes.
    * 
    */
   private colorNodes() {
-    for (let index = 0; index < this.numberOfYears; index++) {
-      if (index <= this.currentYear - 2016) {
-        this.yearBoxElements[index].style.backgroundColor = this.YEAR_PUCK_COLOR;
+    for (let i = 0; i < this.numberOfYears; i++) {
+      if (i <= this.currentYear - this.minYear) {
+        this.yearBoxElements[i].style.backgroundColor = this.YEAR_PUCK_COLOR;
       } else {
-        this.yearBoxElements[index].style.backgroundColor = 'transparent';
+        this.yearBoxElements[i].style.backgroundColor = 'transparent';
       }
     }
   }

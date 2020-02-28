@@ -1,41 +1,37 @@
 .year-box-wrapper {
-    width: 110px;
-    height: 110px;
-    position: absolute;
-    left: 4px;
-    top: 2px;
+  width: 110px;
+  height: 110px;
+  position: absolute;
+  left: 4px;
+  top: 2px;
 }
+
 .year-box {
-    width: 10%;
-    height: 7%;
-    border-radius: 2px;
-    position: absolute;
-    background-color: transparent;
-    border: .5px solid rgb(147, 93, 201);
-    left: 45%;
-    top: 46.5%;
-    transition: background-color 0.2s linear;
+  width: 10%;
+  height: 7%;
+  border-radius: 2px;
+  position: absolute;
+  background-color: transparent;
+  border: .5px solid rgb(147, 93, 201);
+  left: 45%;
+  top: 46.5%;
+  transition: background-color 0.2s linear;
 }
 
 .current-year {
-    position: absolute;
-    width: 100%;
-    font-size: 18px;
-    text-align: center;
-    top: calc(50% - 5px);
-    font-weight: bolder;
-    color: rgb(147, 93, 201);
-    left: 3px;
-    padding-top: 3px;
+  position: absolute;
+  font-size: 18px;
+  text-align: center;
+  transform: translate(40px, 44px);
+  font-weight: bolder;
+  color: rgb(147, 93, 201);
 }
 
 .title {
-    color:  rgb(147, 93, 201);
-    font-size: 16px;
-    width: 100%;
-    text-align: center;
-    top: -26px;
-    left: 4px;
-    font-weight: bold;
-    position: absolute;
+  color: rgb(147, 93, 201);
+  font-size: 16px;
+  transform: translate(38px, -50px);
+  text-align: center;
+  font-weight: bold;
+  position: absolute;
 }

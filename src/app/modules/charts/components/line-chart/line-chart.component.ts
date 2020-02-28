@@ -14,7 +14,8 @@ export class LineChartComponent implements AfterViewInit, OnChanges {
   @Input() title: string;
   @Input() legend: boolean;
   @Input() fontSize: number;
-  @Input() size: number;
+  @Input() height: number;
+  @Input() width: number;
 
   currentData: any;
 
@@ -30,9 +31,11 @@ export class LineChartComponent implements AfterViewInit, OnChanges {
   }
 
   ngOnChanges(changes: SimpleChanges) {
-    if (changes.size && this.canvas) {
-      this.canvas.style.width = changes.size.currentValue + 'px';
-      this.canvas.style.height = changes.size.currentValue + 'px';
+    if (changes.height && this.canvas) {
+      this.canvas.style.height = changes.height.currentValue + 'px';
+    }
+    if (changes.width && this.canvas) {
+      this.canvas.style.width = changes.width.currentValue + 'px';
     }
   }
 
@@ -78,8 +81,8 @@ export class LineChartComponent implements AfterViewInit, OnChanges {
     }
     this.canvas = document.createElement('canvas')
     this.chartDiv.nativeElement.appendChild(this.canvas);
-    this.canvas.style.width = this.size + 'px';
-    this.canvas.style.height = this.size + 'px';
+    this.canvas.style.width = this.width + 'px';
+    this.canvas.style.height = this.height + 'px';
     const canvasContext = this.canvas.getContext('2d');
     this.myChart = new Chart(canvasContext, {
       type: 'line',
@@ -108,7 +111,7 @@ export class LineChartComponent implements AfterViewInit, OnChanges {
           labels: {
             fontColor: 'white',
             fontStyle: 'bold',
-            fontSize: 14
+            fontSize: this.fontSize - 4
           }
         },
         scales: {
@@ -119,13 +122,13 @@ export class LineChartComponent implements AfterViewInit, OnChanges {
               color: '#FFFFFF',
             },
             ticks: {
-              fontSize: 14,
+              fontSize: this.fontSize - 4,
               fontStyle: 'bold',
               fontColor: 'white',
             },
             scaleLabel: {
               display: true,
-              fontSize: 18,
+              fontSize: this.fontSize,
               fontStyle: 'bold',
               fontColor: '#FFFFFF',
               labelString: 'Year'
@@ -138,14 +141,14 @@ export class LineChartComponent implements AfterViewInit, OnChanges {
               color: '#FFFFFF',
             },
             ticks: {
-              fontSize: 14,
+              fontSize: this.fontSize - 4,
               fontStyle: 'bold',
               fontColor: 'white',
               // max: this.chartMax
             },
             scaleLabel: {
               display: true,
-              fontSize: 18,
+              fontSize: this.fontSize,
               fontStyle: 'bold',
               fontColor: '#FFFFFF',
               labelString: 'Capacity (MW)'

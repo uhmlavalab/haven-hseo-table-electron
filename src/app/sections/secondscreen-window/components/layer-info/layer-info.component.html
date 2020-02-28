@@ -1,11 +1,35 @@
-
-
 <div class="grid-container">
-    <div class="item1">Layer Info</div>
-    <div class="item2">Legend</div>
-    <div class="item3">
-        Details
-        <p>Lorem spson asdf woef woefi woef owie fi</p>
-    </div>  
+  <div class="item1">{{ layerName }}</div>
+  <div class="item2">
+    Legend
+
+    <div *ngFor="let item of legendItems">
+      <div class="legend-color-square" [ngStyle]="{backgroundColor: item.color}"> </div>
+      <p>{{item.name}}</p>
+
+    </div>
   </div>
-  
+  <div class="item3">
+    Details
+    <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Integer lacus urna, mattis nec pretium ac, ornare
+      cursus augue. Aenean tristique, nunc non faucibus varius, massa leo blandit odio, ut iaculis ligula purus ut
+      leo. Suspendisse quis metus rutrum, consectetur est at, aliquam turpis. Suspendisse scelerisque sit amet augue
+      at pretium. Nam pulvinar consequat faucibus. Vivamus tristique nisl vitae ante congue, id feugiat risus
+      accumsan. Etiam neque turpis, lacinia nec aliquam nec, imperdiet eget odio. Vestibulum lorem massa, ornare in
+      accumsan at, auctor at dui.
+
+      Quisque at hendrerit nisi. Curabitur sed urna vel lectus tincidunt volutpat. Integer eu elementum dolor. Morbi
+      et odio sed nisi volutpat vulputate. Morbi interdum, augue quis imperdiet euismod, libero nulla tristique
+      ligula, faucibus dictum elit mi eu mi. Nullam auctor nisi orci, eget commodo erat laoreet eu. Fusce vestibulum
+      urna ut lacus volutpat, nec consectetur orci lacinia. Nunc nibh leo, luctus at sodales cursus, aliquam nec
+      lorem. Nunc gravida urna et ornare tincidunt. Nam vitae pretium justo. Donec augue metus, placerat eget viverra
+      id, euismod sed erat. Mauris sed risus ac eros rhoncus convallis ac eget mi.
+
+      Praesent auctor scelerisque hendrerit. Curabitur a lectus mattis enim placerat feugiat non id lorem. Interdum et
+      malesuada fames ac ante ipsum primis in faucibus. Nulla sed varius ipsum, non euismod dui. Fusce scelerisque
+      purus vel nulla eleifend, sit amet blandit augue ultrices. Nunc lacinia neque at mauris elementum tempus. Mauris
+      eleifend sapien eget quam mollis, ut lacinia massa interdum. Nam bibendum felis id elit auctor, sed faucibus leo
+      pulvinar. Phasellus tempus ullamcorper justo, sed iaculis nulla tempus ac. Integer lacus libero, elementum
+      sagittis nisl sit amet, dictum luctus dolor.</p>
+  </div>
+</div>

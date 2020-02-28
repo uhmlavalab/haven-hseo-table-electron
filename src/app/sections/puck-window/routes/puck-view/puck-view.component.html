@@ -1,13 +1,3 @@
 <app-video-feed width=100 height=100 feedNumber=0></app-video-feed>
 
-<div #yearPuckDiv style="position: absolute">
-  <app-year-puck #yearPuck [markerId]="yearId" [job]="yearJob" [minRotation]="yearMinrot" [delay]="yearDelay"
-    (rotateLeft)="rotateLeft()" (rotateRight)="rotateRight()"></app-year-puck>
-</div>
-<!-- <div class="tracking-dot layer" #trackingDotLayer>
-    <app-layer-puck></app-layer-puck>
-  </div>
-  <div class="tracking-dot add" 
-  [style.borderColor]="addColor" #trackingDotAdd>
-    <app-add-puck></app-add-puck>
-  </div> -->
+<app-year-puck #yearPuck [markerId]="yearId" [minRotation]="yearMinRot" [delay]="yearDelay" [minYear]="minYear" [maxYear]="maxYear" [currentYear]="currentYear" (rotateLeft)="yearDecrease()" (rotateRight)="yearIncrease()"></app-year-puck>

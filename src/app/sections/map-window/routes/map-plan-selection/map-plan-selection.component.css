@@ -1,13 +1,30 @@
 .grid-container {
-    display: grid;
-    grid-template-columns: auto auto auto auto;
-    background-color: #2196F3;
-    padding: 10px;
-  }
-  .grid-item {
-    background-color: rgba(255, 255, 255, 0.8);
-    border: 1px solid rgba(0, 0, 0, 0.8);
-    padding: 20px;
-    font-size: 30px;
-    text-align: center;
-  }
+  display: grid;
+  grid-template-columns: 15% 15% 15% 15% 15%;
+  width: 80vw;
+  height: 30vh;
+  grid-gap: 5%;
+  left: 50%;
+  top: 45%;
+  transform: translate(-50%, -50%);
+  position: absolute;
+  
+}
+
+.grid-item {
+  border: 1px solid rgba(0, 0, 0, 0.8);
+  padding: 20px;
+  font-size: 24px;
+  font-weight: bold;
+  text-align: center;
+  line-height: 30vh;
+  border-radius: 10%;
+}
+
+.title {
+    font-size: 48px;
+    left: 50%;
+    top: 16px;
+    position: absolute;
+    transform: translateX(-50%);
+}

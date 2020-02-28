@@ -1,7 +1,8 @@
 import { Component, AfterViewInit, ViewChild, ElementRef } from '@angular/core';
 import { PuckService, ProjectableMarker } from '@app/input';
 import { YearPuckComponent } from 'src/app/modules/input/puck-input/components/year-puck/year-puck.component';
-import { ElectronService, AppInput } from '@app/core';
+import { PlanService } from '@app/core';
+import { Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-puck-view',
@@ -9,41 +10,54 @@ import { ElectronService, AppInput } from '@app/core';
   styleUrls: ['./puck-view.component.css']
 })
 export class PuckViewComponent implements AfterViewInit {
-  /* HTML elements that are projected onto the pucks */
-  @ViewChild('trackingDotYear', { static: false }) trackingDotYear;
-  @ViewChild('trackingDotLayer', { static: false }) trackingDotLayer;
-  @ViewChild('trackingDotScenario', { static: false }) trackingDotScenario;
-  @ViewChild('trackingDotAdd', { static: false }) trackingDotAdd;
-  @ViewChild('connectingLine', { static: false }) connectingLine; // The line that connects the Layer and Add pucks.
 
-
-  @ViewChild('yearPuck', {static: false}) YearPuck: YearPuckComponent;
-  @ViewChild('yearPuckDiv', {static: false}) YearDiv: ElementRef
+  @ViewChild('yearPuck', { static: false }) YearPuck: YearPuckComponent;
+  @ViewChild('yearPuck', { static: false, read: ElementRef }) YearDiv: ElementRef;
   yearId = 384;
-  yearJob = 'year';
-  yearMinrot = 10;
+  yearMinRot = 10;
   yearDelay = 30;
+  minYear = 2016;
+  maxYear = 2045;
+  currentYear = 2016;
 
-  constructor(private puckService: PuckService, private electronService: ElectronService) {
+  pucks: { marker: ProjectableMarker, div: ElementRef }[] = [];
+
+  yearSubscription: Subscription;
+
+  constructor(private puckService: PuckService, private planService: PlanService) {
 
   }
 
   ngAfterViewInit(): void {
+    this.pucks.push({ marker: this.YearPuck, div: this.YearDiv });
     this.puckService.addMarker(this.YearPuck);
-    this.puckService.markersSubject.subscribe({
-      next: value => {
-        value.forEach(marker => marker.updatePosition(this.YearDiv));
-      }
+    this.puckService.markersSubject.subscribe(value => {
+      value.forEach(marker => {
+        const puck = this.pucks.find(element => element.marker.markerId == marker.markerId);
+        if (puck) {
+          puck.marker.updatePosition(puck.div);
+        }
+      });
     });
+
+    this.yearSubscription = this.planService.currentYearSub.subscribe(year => {
+      this.currentYear = year;
+    })
   }
 
-  rotateLeft() {
-    this.electronService.appInput(AppInput.left);
+  ngOnDestroy() {
+    this.puckService.removeMarker(this.YearPuck.markerId);
+    this.yearSubscription.unsubscribe();
   }
 
-  rotateRight() {
-    this.electronService.appInput(AppInput.right);
+  yearDecrease() {
+    this.planService.decrementCurrentYear();
   }
+
+  yearIncrease() {
+    this.planService.incrementCurrentYear();
+  }
+
 
   // /** Draws a line between the layer puck element and the add puck element.
   //  * Both of the pucks have to be detected and live for the line to be drawn.

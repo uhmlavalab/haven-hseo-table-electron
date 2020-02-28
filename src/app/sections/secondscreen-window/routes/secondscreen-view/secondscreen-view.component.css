@@ -1,30 +1,32 @@
 
 
 app-map-element {
-    left: 50%;
+    left: 40%;
     top: 50%;
     transform: translate(-50%, -50%);
     position: absolute;
+    border: solid white 3px;
 }
 
 app-line-chart {
-    right: 1rem;
-    top: 1rem;
+    right: 5rem;
+    top: 2rem;
     position: absolute;
 
 }
 
-app-pie-chart {
-    left: 1rem;
-    top: 1rem;
-    position: absolute;
-
-}
 
 app-layer-info {
     position: absolute;
-    right: 1rem;
+    right: 5rem;
     bottom: 1rem;
-    width: 25vw;
-    height: 55vh;
+    width: 750px;
+    height: 50vh;
+}
+
+app-layer-list {
+    position: absolute;
+    left: 5rem;
+    top: 50%;
+    transform: translate(0, -50%);
 }

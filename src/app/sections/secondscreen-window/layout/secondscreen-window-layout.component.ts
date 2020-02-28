@@ -32,7 +32,7 @@ export class SecondscreenWindowLayoutComponent implements OnInit {
   reroute(route: AppRoutes) {
     switch (route) {
       case AppRoutes.mainmenu:
-        this.rerouteToMainMenu();
+        this.rerouteToWaitingScreen();
         break;
       case AppRoutes.planselection:
         this.rerouteToPlanSelection();

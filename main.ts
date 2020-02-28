@@ -146,6 +146,9 @@ function cleanWindowSelections() {
   mapWindow = null;
   puckWindow = null;
   secondWindow = null;
+  this.puckWindowMessenger = null;
+  this.secondscreenWindowMessenger = null;
+  this.mapWindowMessenger = null;
   createWindows();
 }
 
@@ -189,7 +192,7 @@ function setupWindow(display: Display): BrowserWindow {
     y: 0 + display.bounds.y,
     width: display.workAreaSize.width * display.scaleFactor,
     height: display.workAreaSize.height * display.scaleFactor,
-    fullscreen: true,
+    fullscreen: false,
     frame: false,
     webPreferences: {
       nodeIntegration: true,

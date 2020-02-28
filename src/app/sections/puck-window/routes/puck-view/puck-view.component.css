@@ -136,4 +136,6 @@
     transition: width 0.5s linear;
   }
 
-  
+  app-video-feed {
+    visibility: hidden;
+  }

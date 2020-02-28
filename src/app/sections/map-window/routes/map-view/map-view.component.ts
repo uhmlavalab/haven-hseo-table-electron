@@ -16,18 +16,19 @@ export class MapViewComponent implements OnInit {
   layer: number;
 
   @ViewChild('map' , {static: false}) map: MapElementComponent;
-  mapWidth = 600;
+  mapWidth = 1100;
   mapBounds = [[-158.281, 21.710], [-157.647, 21.252]];
   baseImageURL = 'assets/plans/oahu/images/oahu-satellite5.png';
 
   @ViewChild('pieChart' , {static: false}) pieChart: PieChartComponent;
-  pieSize = 300;
-  pieFontSize = 24;
+  pieSize = 350;
+  pieFontSize = 28;
   pieTitle = "Generation";
   pieLegend = false;
 
   @ViewChild('lineChart' , {static: false}) lineChart: LineChartComponent;
-  lineSize = 300;
+  lineWidth = 400;
+  lineHeight = 400;
   lineFontSize = 24;
   lineTitle = "Generation";
   lineLegend = false;
@@ -99,15 +100,15 @@ export class MapViewComponent implements OnInit {
       this.detectorRef.detectChanges();
     });
 
-    this.planService.currentScenarioSub.subscribe(scenario => {
-      this.scenario = scenario;
-      this.detectorRef.detectChanges();
-    });
+    // this.planService.currentScenarioSub.subscribe(scenario => {
+    //   this.scenario = scenario;
+    //   this.detectorRef.detectChanges();
+    // });
 
-    this.planService.currentLayerSub.subscribe(layer => {
-      this.layer = layer;
-      this.detectorRef.detectChanges();
-    });
+    // this.planService.currentLayerSub.subscribe(layer => {
+    //   this.layer = layer;
+    //   this.detectorRef.detectChanges();
+    // });
   }
 
   nextYear(year) {
@@ -120,7 +121,6 @@ export class MapViewComponent implements OnInit {
 
   changePieSize() {
     this.pieSize--;
-    this.lineSize--;
     this.mapWidth--;
   }
 }

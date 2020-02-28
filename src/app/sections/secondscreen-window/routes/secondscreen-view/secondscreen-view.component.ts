@@ -15,18 +15,13 @@ export class SecondscreenViewComponent implements OnInit {
   layer: number;
 
   @ViewChild('map' , {static: false}) map: MapElementComponent;
-  mapWidth = 800;
+  mapWidth = 1300;
   mapBounds = [[-158.281, 21.710], [-157.647, 21.252]];
   baseImageURL = 'assets/plans/oahu/images/oahu-satellite5.png';
-  
-  @ViewChild('pieChart' , {static: false}) pieChart: PieChartComponent;
-  pieSize = 300;
-  pieFontSize = 24;
-  pieTitle = "Generation";
-  pieLegend = false;
 
   @ViewChild('lineChart' , {static: false}) lineChart: LineChartComponent;
-  lineSize = 300;
+  lineWidth = 750;
+  lineHeight = 650;
   lineFontSize = 24;
   lineTitle = "Generation";
   lineLegend = false;
@@ -98,28 +93,17 @@ export class SecondscreenViewComponent implements OnInit {
       this.detectorRef.detectChanges();
     });
 
-    this.planService.currentScenarioSub.subscribe(scenario => {
-      this.scenario = scenario;
-      this.detectorRef.detectChanges();
-    });
+    // this.planService.currentScenarioSub.subscribe(scenario => {
+    //   this.scenario = scenario;
+    //   this.detectorRef.detectChanges();
+    // });
 
-    this.planService.currentLayerSub.subscribe(layer => {
-      this.layer = layer;
-      this.detectorRef.detectChanges();
-    });
+    // this.planService.currentLayerSub.subscribe(layer => {
+    //   this.layer = layer;
+    //   this.detectorRef.detectChanges();
+    // });
   }
 
-  nextYear(year) {
-    this.pieChart.changeXAxis(year);
-  }
+  
 
-  changePieData() {
-    this.pieChart.changeData(this.pieData, 2001);
-  }
-
-  changePieSize() {
-    this.pieSize--;
-    this.lineSize--;
-    this.mapWidth--;
-  }
 }
