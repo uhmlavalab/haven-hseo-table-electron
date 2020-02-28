@@ -76,12 +76,12 @@ function createWindows() {
   })
 
   ipcMain.on('set-map-window', (evt, msg) => setMapWindow(evt.sender));
-  
+
   ipcMain.on('set-secondscreen-window', (evt, msg) => setSecondScreenWindow(evt.sender));
 
-  ipcMain.on('clear-window-selections', (evt, msg) => cleanWindowSelections() );
+  ipcMain.on('clear-window-selections', (evt, msg) => cleanWindowSelections());
 
-  ipcMain.on('is-window-set', (evt, msg) => isWindowSet(evt.sender) );
+  ipcMain.on('is-window-set', (evt, msg) => isWindowSet(evt.sender));
 
   ipcMain.on('shift-puck-screen', (evt, msg) => shiftPuckScreen(msg.direction));
 
@@ -90,7 +90,7 @@ function createWindows() {
 }
 
 
-function setMapWindow(winWebContents: Electron.WebContents) { 
+function setMapWindow(winWebContents: Electron.WebContents) {
   windows.forEach(el => {
     if (el.webContents === winWebContents) {
       mapWindow = el;
@@ -141,14 +141,20 @@ function cleanWindowSelections() {
     puckWindow.webContents.send('message-for-puck-window', { reset: true });
     puckWindow.close();
   }
+  if (mapWindowMessenger) {
+    mapWindowMessenger = null;
+  }
+  if (puckWindowMessenger) {
+    puckWindowMessenger = null;
+  }
+  if (secondscreenWindowMessenger) {
+    secondscreenWindowMessenger = null;
+  }
   closeExtraWindows();
   ipcMain.removeAllListeners();
   mapWindow = null;
   puckWindow = null;
   secondWindow = null;
-  this.puckWindowMessenger = null;
-  this.secondscreenWindowMessenger = null;
-  this.mapWindowMessenger = null;
   createWindows();
 }
 
@@ -192,7 +198,7 @@ function setupWindow(display: Display): BrowserWindow {
     y: 0 + display.bounds.y,
     width: display.workAreaSize.width * display.scaleFactor,
     height: display.workAreaSize.height * display.scaleFactor,
-    fullscreen: false,
+    fullscreen: true,
     frame: false,
     webPreferences: {
       nodeIntegration: true,
@@ -212,7 +218,7 @@ function setupWindow(display: Display): BrowserWindow {
       slashes: true
     }));
   }
-  return window; 
+  return window;
 }
 
 function setupPuckWindow() {

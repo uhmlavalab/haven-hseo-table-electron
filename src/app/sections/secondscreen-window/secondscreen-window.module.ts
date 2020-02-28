@@ -13,11 +13,11 @@ import { SecondscreenWindowLayoutComponent } from './layout/secondscreen-window-
 import { SecondScreenWindowRoutingModule } from './secondscreen-window-routing-module';
 import { SecondscreenWaitingComponent } from './routes/secondscreen-waiting/secondscreen-waiting.component';
 import { SecondscreenViewComponent } from './routes/secondscreen-view/secondscreen-view.component';
+import { SecondscreenPlanSelectionComponent } from './routes/secondscreen-plan-selection/secondscreen-plan-selection.component';
+import { SecondscreenMainMenuComponent } from './routes/secondscreen-main-menu/secondscreen-main-menu.component';
 
 //Components
 import { LayerInfoComponent } from './components/layer-info/layer-info.component';
-import { SecondscreenPlanSelectionComponent } from './routes/secondscreen-plan-selection/secondscreen-plan-selection.component';
-import { SecondscreenMainMenuComponent } from './routes/secondscreen-main-menu/secondscreen-main-menu.component';
 import { LayerListComponent } from './components/layer-list/layer-list.component';
 
 @NgModule({
