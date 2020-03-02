@@ -1,11 +1,14 @@
-import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
-import { AppRoutes, AppInput, ElectronService } from '@app/core';
+import { Component, ChangeDetectorRef } from '@angular/core';
+import { AppRoutes, ElectronService, PlanService, Plan } from '@app/core';
+import { InputService } from '@app/input'
 import { Subscription } from 'rxjs';
 
 interface MenuOption {
   name: string;
+  plan: Plan;
   selected: boolean;
   route: AppRoutes;
+  background: string | null;
   click(): any;
 }
 
@@ -14,41 +17,9 @@ interface MenuOption {
   templateUrl: './map-plan-selection.component.html',
   styleUrls: ['./map-plan-selection.component.css']
 })
-export class MapPlanSelectionComponent implements OnInit {
+export class MapPlanSelectionComponent {
 
-  menuOptions: MenuOption[] = [
-    {
-      name: 'Oahu',
-      selected: false,
-      route: AppRoutes.view,
-      click: () => this.routeToView() 
-    },
-    {
-      name: 'Maui',
-      selected: false,
-      route: AppRoutes.view,
-
-      click: () => this.routeToView()
-    },
-    {
-      name: 'Big Island',
-      selected: false,
-      route: AppRoutes.view,
-      click: () => this.routeToView()
-    },
-    {
-      name: 'Puerto Rico',
-      selected: false,
-      route: AppRoutes.view,
-      click: () => this.routeToView()
-    },
-    {
-      name: 'Back',
-      selected: false,
-      route: AppRoutes.mainmenu,
-      click: () => this.routeToMainMenu()
-    }
-  ];
+  menuOptions: MenuOption[] = [];
 
   title = 'Main Menu';
 
@@ -56,37 +27,42 @@ export class MapPlanSelectionComponent implements OnInit {
 
   electronMessageSub: Subscription;
 
-  constructor(private electronService: ElectronService, private detectorRef: ChangeDetectorRef) {
+  constructor(private electronService: ElectronService, private planService: PlanService, private detectorRef: ChangeDetectorRef, private inputService: InputService) {
+    this.inputService.deregisterAllKeyboardEvents();
+
+    this.inputService.registerKeyboardEvent({ keyname: 'ArrowLeft', eventFunction: () => this.shiftSelectionLeft() });
+    this.inputService.registerKeyboardEvent({ keyname: 'ArrowRight', eventFunction: () => this.shiftSelectionRight() });
+    this.inputService.registerKeyboardEvent({ keyname: 'Enter', eventFunction: () => this.selectOption() });
+
+    this.planService.getPlans().forEach(el => {
+      this.menuOptions.push({
+        name: el.displayName,
+        plan: el,
+        selected: false,
+        route: AppRoutes.view,
+        background: `url(${el.landingImagePath})`,
+        click: () => {
+          this.planService.loadPlan(el).then(() => {
+            this.routeToView();
+          })
+        }
+      })
+    })
+
+    this.menuOptions.push({
+      name: 'Back',
+      plan: null,
+      selected: false,
+      route: AppRoutes.mainmenu,
+      background: null,
+      click: () => this.routeToMainMenu()
+    })
+
     this.menuOptions[0].selected = true;
   }
 
-  ngOnInit(): void {
-    this.electronMessageSub = this.electronService.windowMessageSubject.subscribe(message => {
-      if (!message) return;
-      if (message.type == 'input') {
-        this.processInput(message.input);
-      }
-    })
-  }
-
-  processInput(input: AppInput) {
-    console.log(input);
-    switch (input) {
-      case AppInput.left: 
-        this.shiftSelectionLeft();
-        break;
-      case AppInput.right:
-        this.shiftSelectionRight();
-        break;
-      case AppInput.enter:
-        this.selectOption();
-        break;
-    }
-  }
 
   shiftSelectionRight() {
-    console.log('left')
-
     this.menuOptions[this.menuOptionSelected].selected = false;
     this.menuOptionSelected++;
     this.menuOptionSelected = this.menuOptionSelected % this.menuOptions.length;
@@ -96,8 +72,6 @@ export class MapPlanSelectionComponent implements OnInit {
   }
 
   shiftSelectionLeft() {
-    console.log('right')
-
     this.menuOptions[this.menuOptionSelected].selected = false;
     this.menuOptionSelected--;
     if (this.menuOptionSelected < 0) {
@@ -108,9 +82,8 @@ export class MapPlanSelectionComponent implements OnInit {
   }
 
   selectOption() {
-    this.electronService.rerouteApp(this.menuOptions[this.menuOptionSelected].route);
+    this.menuOptions[this.menuOptionSelected].click()
   }
-
 
   routeToMainMenu() {
     this.electronService.rerouteApp(AppRoutes.mainmenu);
@@ -120,9 +93,6 @@ export class MapPlanSelectionComponent implements OnInit {
     this.electronService.rerouteApp(AppRoutes.view);
   }
 
-  restart() {
-    this.electronService.resetAllWindows();
-  }
 
   exit() {
     this.electronService.exit()

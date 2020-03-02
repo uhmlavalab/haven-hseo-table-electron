@@ -20,6 +20,36 @@ const dataDir = 'C:/ProgramData/ProjecTable';
 
 let configFile = {
   puckWindowWidth: 200,
+  plans: {
+    oahu : {
+      css: {
+        mapwindow: {
+          map: {
+            position: { x: 0, y: 0 },
+            size: {width: 0, height: 0},
+          },
+          linechart: {
+            position: { x: 0, y: 0 },
+            size: {width: 0, height: 0},
+          },
+          piechart: {
+            position: { x: 0, y: 0 },
+            size: {width: 0, height: 0},
+          },
+          textlabel: {
+            position: {x: 0, y: 0},
+            size: 18
+          }
+        },
+        secondwindow: {
+          map: {
+            position: { x: 0, y: 0 },
+            size: {width: 0, height: 0},
+          }
+        }
+      }
+    }
+  }
 };
 
 // Config File Functions
@@ -85,6 +115,8 @@ function createWindows() {
 
   ipcMain.on('shift-puck-screen', (evt, msg) => shiftPuckScreen(msg.direction));
 
+  ipcMain.on('save-config-element', (evt, msg) => saveConfigProperty(configFile, msg.path, msg.value));
+
   ipcMain.on('close', () => closeProgram());
 
 }
@@ -95,12 +127,15 @@ function setMapWindow(winWebContents: Electron.WebContents) {
     if (el.webContents === winWebContents) {
       mapWindow = el;
       mapWindow.webContents.send('map-window-confirmation', 'Map Window successfully set.');
+      mapWindow.webContents.send('send-config', {configFile: configFile});
       if (!mapWindowMessenger) {
         mapWindowMessenger = ipcMain.on('message-to-map-window', (evt, msg) => mapWindow.webContents.send('message-for-map-window', msg));
       }
       if (!puckWindow) {
         setupPuckWindow();
         puckWindow.webContents.send('puck-window-confirmation', 'Puck Window successfully set.');
+        puckWindow.webContents.send('send-config', {configFile: configFile});
+
         if (!puckWindowMessenger) {
           puckWindowMessenger = ipcMain.on('message-to-puck-window', (evt, msg) => puckWindow.webContents.send('message-for-puck-window', msg));
         }
@@ -118,6 +153,7 @@ function setSecondScreenWindow(winWebContents: Electron.WebContents) {
     if (el.webContents === winWebContents) {
       secondWindow = el;
       secondWindow.webContents.send('secondscreen-window-confirmation', 'SecondScreen Window successfully set.');
+      secondWindow.webContents.send('send-config', {configFile: configFile});
       if (!secondscreenWindowMessenger) {
         secondscreenWindowMessenger = ipcMain.on('message-to-secondscreen-window', (evt, msg) => secondWindow.webContents.send('message-for-secondscreen-window', msg));
       }
@@ -275,6 +311,16 @@ function closeProgram() {
     puckWindow.close();
   }
   app.quit();
+}
+
+function saveConfigProperty(obj, path, value)  {
+  if (path.length === 1) {
+    obj[path] = value
+    console.log(JSON.stringify(configFile));
+    saveConfigFile();
+    return
+  }
+  return saveConfigProperty(obj[path[0]], path.slice(1), value)
 }
 
 try {

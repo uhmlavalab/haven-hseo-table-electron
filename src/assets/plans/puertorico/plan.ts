@@ -17,43 +17,6 @@ export const PuertoRico: Plan = {
       displayName: 'Puerto Rico',
     },
   ],
-  css: {
-    map: {
-      left: '27.5vw',
-      top: '3vh'
-    },
-    legend: {
-      defaultLayout: 'vertical',
-      grid: {
-        left: '28vw',
-        top: '2vh',
-        width: '26vw'
-      },
-      vertical: {
-        left: '26vw',
-        top: '3vh',
-        width: '10vw'
-      }
-    },
-    title: {
-      left: '91vw',
-      top: '57vh'
-    },
-    scenario: {
-      left: '58vw',
-      top: '88vh'
-    },
-    charts: {
-      pie: {
-        left: '30.5vw',
-        top: '66vh'
-      },
-      line: {
-        left: 'calc(100vw - 325px)',
-        top: '0vh'
-      }
-    }
-  },
   data: {
     capacityPath: 'assets/plans/puertorico/data/capacity.csv',
     generationPath: 'assets/plans/puertorico/data/generation.csv',

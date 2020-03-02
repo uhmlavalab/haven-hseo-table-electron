@@ -1,6 +1,7 @@
-import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
+import { Component, ChangeDetectorRef } from '@angular/core';
 import { ElectronService, AppRoutes, AppInput } from '@app/core';
 import { Subscription } from 'rxjs';
+import { InputService } from '@app/input';
 
 interface MenuOption {
   name: string;
@@ -14,7 +15,7 @@ interface MenuOption {
   templateUrl: './map-main-menu.component.html',
   styleUrls: ['./map-main-menu.component.css']
 })
-export class MapMainMenuComponent implements OnInit {
+export class MapMainMenuComponent  {
 
   menuOptions: MenuOption[] = [
     {
@@ -34,13 +35,13 @@ export class MapMainMenuComponent implements OnInit {
       name: 'Restart',
       selected: false,
       route: AppRoutes.restart,
-      click: () => this.routeToPlanSelection()
+      click: () => this.restart()
     },
     {
       name: 'Exit',
       selected: false,
       route: AppRoutes.exit,
-      click: () => this.routeToPlanSelection()
+      click: () => this.exit()
     }
   ];
 
@@ -50,48 +51,24 @@ export class MapMainMenuComponent implements OnInit {
 
   electronMessageSub: Subscription;
 
-  constructor(private electronService: ElectronService, private detectorRef: ChangeDetectorRef) {
+  constructor(private electronService: ElectronService, private detectorRef: ChangeDetectorRef, private inputService: InputService) {
+    this.inputService.deregisterAllKeyboardEvents();
+    this.inputService.registerKeyboardEvent({ keyname: 'ArrowLeft', eventFunction: () => this.shiftSelectionLeft() });
+    this.inputService.registerKeyboardEvent({ keyname: 'ArrowRight', eventFunction: () => this.shiftSelectionRight() });
+    this.inputService.registerKeyboardEvent({ keyname: 'Enter', eventFunction: () => this.selectOption() });
+
     this.menuOptions[0].selected = true;
   }
 
-  ngOnInit(): void {
-    this.electronMessageSub = this.electronService.windowMessageSubject.subscribe(message => {
-      if (!message) return;
-      if (message.type == 'input') {
-        this.processInput(message.input);
-      }
-    })
-  }
-
-  processInput(input: AppInput) {
-    console.log(input);
-    switch (input) {
-      case AppInput.left: 
-        this.shiftSelectionLeft();
-        break;
-      case AppInput.right:
-        this.shiftSelectionRight();
-        break;
-      case AppInput.enter:
-        this.selectOption();
-        break;
-    }
-  }
-
   shiftSelectionRight() {
-    console.log('left')
-
     this.menuOptions[this.menuOptionSelected].selected = false;
     this.menuOptionSelected++;
     this.menuOptionSelected = this.menuOptionSelected % this.menuOptions.length;
     this.menuOptions[this.menuOptionSelected].selected = true;
     this.detectorRef.detectChanges();
-
   }
 
   shiftSelectionLeft() {
-    console.log('right')
-
     this.menuOptions[this.menuOptionSelected].selected = false;
     this.menuOptionSelected--;
     if (this.menuOptionSelected < 0) {
@@ -102,7 +79,6 @@ export class MapMainMenuComponent implements OnInit {
   }
 
   selectOption() {
-    console.log('select option')
     this.electronService.rerouteApp(this.menuOptions[this.menuOptionSelected].route);
   }
 

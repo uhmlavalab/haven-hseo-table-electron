@@ -1,18 +1,14 @@
-<p>map-view works!</p>
-<button (click)="nextYear(2001)">Year:2001</button>
-<button (click)="nextYear(2003)">Year:2003</button>
-<button (click)="changePieData()">CLICK Scenario</button>
-<button (click)="changePieSize()">CLICK CLICK</button>
+<div cdkDrag (cdkDragReleased)="onLabelDragEnd($event)" #textLabel>
+  <p>{{ year }}</p>
+  <p>{{ scenario.name }}</p>
+</div>
 
-<h3>YEAR: {{ year }}</h3>
-<h3>SCENARIO: {{ scenario }}</h3>
-<h3>LAYER: {{ layer }}</h3>
 
-<h2>MAP</h2>
-<app-map-element #map [width]="mapWidth" [baseImage]="baseImageURL" [bounds]="mapBounds"></app-map-element>
+<app-map-element cdkDrag (cdkDragReleased)="onMapDragEnd($event)" #map [mapLayers]="planLayers" [planService]="planService" [size]="mapSize" [baseImage]="baseImageURL"
+  [bounds]="mapBounds"></app-map-element>
 
-<app-pie-chart #pieChart [title]="pieTitle" [legend]="pieLegend" [fontSize]="pieFontSize" [size]="pieSize"
-  [data]="pieData"></app-pie-chart>
+<app-pie-chart cdkDrag (cdkDragReleased)="onPieDragEnd($event)" #pieChart [size]="pieSize" [title]="pieTitle"
+  [legend]="pieLegend" [fontSize]="pieFontSize" [data]="pieData"></app-pie-chart>
 
-<app-line-chart #lineChart [title]="lineTitle" [legend]="lineLegend" [fontSize]="lineFontSize" [height]="lineHeight" [width]="lineWidth"
-  [data]="pieData"></app-line-chart>
+<app-line-chart cdkDrag (cdkDragReleased)="onLineDragEnd($event)" #lineChart [size]="lineSize" [title]="lineTitle"
+  [legend]="lineLegend" [fontSize]="lineFontSize" [data]="pieData"></app-line-chart>

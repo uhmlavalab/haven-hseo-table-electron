@@ -1,6 +1,6 @@
 import { Component, OnInit, ViewChild, ElementRef, Input, SimpleChanges } from '@angular/core';
 import * as d3 from 'd3';
-import { MapLayer, Parcel } from '@app/core';
+import { Parcel, ElementSize, MapLayer, PlanService } from '@app/core';
 
 @Component({
   selector: 'app-map-element',
@@ -11,10 +11,12 @@ import { MapLayer, Parcel } from '@app/core';
 export class MapElementComponent implements OnInit {
 
   @ViewChild('mapDiv', { static: true }) mapDiv: ElementRef;
-  @Input('width') width: number;
-  @Input('bounds') bounds: [[number, number], [number, number]];
-  @Input('baseImage') baseImage: string;
-  height: number;
+  @Input() size: ElementSize;
+  @Input() bounds: [[number, number], [number, number]];
+  @Input() baseImage: string;
+  @Input() mapLayers: MapLayer[];
+  @Input() planService: PlanService;
+
   aspectRatio: number;
   rasterBounds: any[];
 
@@ -22,13 +24,14 @@ export class MapElementComponent implements OnInit {
   path: d3.geo.Path;
   map: d3.Selection<any>;
 
-  constructor() {}
+
+  constructor() { }
 
   ngOnInit() {
     const x = Math.abs(this.bounds[0][0] - this.bounds[1][0]);
     const y = Math.abs(this.bounds[0][0] - this.bounds[1][0]);
     this.aspectRatio = x / y;
-    this.height = this.width / this.aspectRatio;
+    this.size.height = this.size.width / this.aspectRatio;
 
     this.projection = d3.geo.mercator()
       .scale(1)
@@ -38,65 +41,80 @@ export class MapElementComponent implements OnInit {
       .projection(this.projection);
 
     this.map = d3.select(this.mapDiv.nativeElement).append('svg')
-      .attr('width', this.width)
-      .attr('height', this.height);
+      .attr('width', this.size.width)
+      .attr('height', this.size.height);
 
     this.map.append('image')
       .attr('xlink:href', `${this.baseImage}`)
-      .attr('width', this.width)
-      .attr('height', this.height);
+      .attr('width', this.size.width)
+      .attr('height', this.size.height);
 
-    const maplayer = '../../../../../assets/plans/oahu/layers/dod.json';
+  
 
-    d3.json(maplayer, (error, geoData) => {
-      const bounds = [this.projection(this.bounds[0]), this.projection(this.bounds[1])];
-      const scale = 1 / Math.max((bounds[1][0] - bounds[0][0]) / this.width, (bounds[1][1] - bounds[0][1]) / this.height);
-      const transform = [
-        (this.width - scale * (bounds[1][0] + bounds[0][0])) / 2,
-        (this.height - scale * (bounds[1][1] + bounds[0][1])) / 2
-      ] as [number, number];
+    this.mapLayers.forEach(mapLayer => {
+      d3.json(mapLayer.filePath, (error, geoData) => {
+        const bounds = [this.projection(this.bounds[0]), this.projection(this.bounds[1])];
+        const scale = 1 / Math.max((bounds[1][0] - bounds[0][0]) / this.size.width, (bounds[1][1] - bounds[0][1]) / this.size.height);
+        const transform = [
+          (this.size.width - scale * (bounds[1][0] + bounds[0][0])) / 2,
+          (this.size.height - scale * (bounds[1][1] + bounds[0][1])) / 2
+        ] as [number, number];
 
-      const proj = d3.geo.mercator()
-        .scale(scale)
-        .translate(transform);
+        const proj = d3.geo.mercator()
+          .scale(scale)
+          .translate(transform);
 
-      const path = d3.geo.path()
-        .projection(proj);
+        const path = d3.geo.path()
+          .projection(proj);
 
-      const layer = { parcels: [] };
-      this.map.selectAll('dod')
-        .data(geoData.features)
-        .enter().append('path')
-        .attr('d', path)
-        .attr('class', 'dod')
-        .each(function (d) {
-          layer.parcels.push({ path: this, properties: (d.hasOwnProperty(`properties`)) ? d[`properties`] : null } as Parcel);
-        }).call(() => {
-          this.defaultFill(layer);
-        });
-    });
+
+        this.map.selectAll(mapLayer.name)
+          .data(geoData.features)
+          .enter().append('path')
+          .attr('d', path)
+          .attr('class', mapLayer.name)
+          .each(function (d) {
+            mapLayer.parcels.push({ path: this, properties: (d.hasOwnProperty(`properties`)) ? d[`properties`] : null } as Parcel);
+          }).call(() => {
+            if (mapLayer.setupFunction !== null) {
+              mapLayer.setupFunction(this.planService);
+            } else {
+              this.defaultFill(mapLayer, mapLayer.fillColor);
+            }
+          });
+      });
+    })
+
   }
 
 
   ngOnChanges(changes: SimpleChanges) {
-    if (changes.width && this.map) {
-      this.resizeMap(changes.width.currentValue);
+    if (changes.size && this.map) {
+      this.resizeMap(changes.size.currentValue);
     }
   }
 
-  private resizeMap(newWidth: number) {
-    this.width = newWidth;
-    this.height = this.width / this.aspectRatio;
-    this.map.attr("width", this.width);
-    this.map.attr("height", this.height);
-    this.map.select('image').attr("width", this.width);
-    this.map.select('image').attr("height", this.height);
+  updateLayers() {
+    this.mapLayers.forEach(layer => {
+      if (layer.updateFunction) {
+        layer.updateFunction(this.planService);
+      }
+    })
+  }
+
+  private resizeMap(newSize: ElementSize) {
+    this.size.width = newSize.width;
+    this.size.height = this.size.width / this.aspectRatio;
+    this.map.attr("width", this.size.width);
+    this.map.attr("height", this.size.height);
+    this.map.select('image').attr("width", this.size.width);
+    this.map.select('image').attr("height", this.size.height);
 
     const bounds = [this.projection(this.bounds[0]), this.projection(this.bounds[1])];
-    const scale = 1 / Math.max((bounds[1][0] - bounds[0][0]) / this.width, (bounds[1][1] - bounds[0][1]) / this.height);
+    const scale = 1 / Math.max((bounds[1][0] - bounds[0][0]) / this.size.width, (bounds[1][1] - bounds[0][1]) / this.size.height);
     const transform = [
-      (this.width - scale * (bounds[1][0] + bounds[0][0])) / 2,
-      (this.height - scale * (bounds[1][1] + bounds[0][1])) / 2
+      (this.size.width - scale * (bounds[1][0] + bounds[0][0])) / 2,
+      (this.size.height - scale * (bounds[1][1] + bounds[0][1])) / 2
     ] as [number, number];
     const proj = d3.geo.mercator()
       .scale(scale)
@@ -106,14 +124,15 @@ export class MapElementComponent implements OnInit {
     this.map.selectAll('path').attr('d', path);
   }
 
-  defaultFill(layer: any) {
-    console.log(layer);
+  defaultFill(layer: any, color: string) {
     layer.parcels.forEach(el => {
       d3.select(el.path)
-        .style('fill', 'red')
+        .style('fill', color)
         .style('opacity', true ? 0.85 : 0.0)
         .style('stroke', 'white')
         .style('stroke-width', 1 + 'px');
     });
   }
+
+
 }

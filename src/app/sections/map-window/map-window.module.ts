@@ -6,6 +6,10 @@ import { MapsModule } from '@app/maps';
 import { ChartsModule } from '@app/charts';
 import { SharedModule } from '@app/shared';
 
+
+// Modules 
+import { DragDropModule } from '@angular/cdk/drag-drop';
+
 // Layout
 import { MapWindowLayoutComponent } from './layout/map-window-layout.component';
 
@@ -26,6 +30,7 @@ import { MapMainMenuComponent } from './routes/map-main-menu/map-main-menu.compo
   ],
   imports: [
     CommonModule,
+    DragDropModule,
     MapWindowRoutingModule,
     MapsModule,
     ChartsModule,

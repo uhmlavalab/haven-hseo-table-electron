@@ -1,5 +1,6 @@
 import { Component, AfterViewInit, ViewChild, ElementRef, Input, OnChanges, SimpleChanges } from '@angular/core';
 import { ChartData } from '../../interfaces/ChartData';
+import { ElementSize } from '@app/core';
 
 
 @Component({
@@ -15,7 +16,7 @@ export class PieChartComponent implements AfterViewInit, OnChanges  {
   @Input() title: string;
   @Input() legend: boolean;
   @Input() fontSize: number;
-  @Input() size: number;
+  @Input() size: ElementSize;
 
   currentData: any;
 
@@ -32,8 +33,8 @@ export class PieChartComponent implements AfterViewInit, OnChanges  {
 
   ngOnChanges(changes: SimpleChanges) {
     if(changes.size && this.canvas) {
-      this.canvas.style.width = changes.size.currentValue + 'px';
-      this.canvas.style.height = changes.size.currentValue + 'px';
+      this.canvas.style.width = changes.size.currentValue.width + 'px';
+      this.canvas.style.height = changes.size.currentValue.height + 'px';
     }
   }
 
@@ -78,8 +79,8 @@ export class PieChartComponent implements AfterViewInit, OnChanges  {
     }
     this.canvas = document.createElement('canvas')
     this.chartDiv.nativeElement.appendChild(this.canvas);
-    this.canvas.style.width = this.size + 'px';
-    this.canvas.style.height = this.size + 'px';
+    this.canvas.style.width = this.size.width + 'px';
+    this.canvas.style.height = this.size.height + 'px';
     const canvasContext = this.canvas.getContext('2d');
     this.myChart = new Chart(canvasContext, {
       type: 'pie',

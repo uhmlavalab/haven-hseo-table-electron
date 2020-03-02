@@ -13,7 +13,6 @@ export class MapWindowLayoutComponent implements OnInit, OnDestroy {
 
   private electronMessageSub: Subscription;
 
-
   constructor(private ngZone: NgZone, private activeRoute: ActivatedRoute, private router: Router, private electronService: ElectronService) {
     this.electronMessageSub = this.electronService.windowMessageSubject.subscribe(message => {
       if (!message) return;

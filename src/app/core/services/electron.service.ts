@@ -2,6 +2,8 @@ import { Injectable, NgZone } from '@angular/core';
 import { ipcRenderer } from 'electron';
 import { Subject, BehaviorSubject } from 'rxjs';
 import { Router } from '@angular/router';
+import { ElementPosition } from '../interfaces/elementPosition';
+import { ElementSize } from '../interfaces/elementSize';
 
 export enum AppRoutes {
   mainmenu = 'main-menu',
@@ -32,7 +34,10 @@ export class ElectronService {
 
   rerouteSubject = new Subject<AppRoutes>();
 
+  configFile: any;
+
   constructor(private router: Router, private ngZone: NgZone) {
+
     this.windowName = '';
     ipcRenderer.on('window-is-set', (event, message) => {
       if (message.windowName === 'secondscreen') {
@@ -44,6 +49,10 @@ export class ElectronService {
       }
     });
     ipcRenderer.send('is-window-set', {});
+    ipcRenderer.on('send-config', (event, message) => {
+      console.log(message);
+      this.configFile = message.configFile;
+    });
   }
 
   public setAsSecondScreenWindow() {
@@ -139,13 +148,13 @@ export class ElectronService {
       this.exit();
       return;
     } else {
-      this.sendMessage({type: 'reroute', route: route});
+      this.sendMessage({ type: 'reroute', route: route });
       this.windowMessageSubject.next({ type: 'reroute', route: route });
     }
   }
 
   public appInput(input: AppInput) {
-    this.sendMessage({type:'input', input: input})
+    this.sendMessage({ type: 'input', input: input })
   }
 
   public appStateUpdate(stateType) {
@@ -154,5 +163,87 @@ export class ElectronService {
 
   public exit() {
     ipcRenderer.send('close', null);
+  }
+
+  ////////
+  public getMapScreenMapPosition(planName: string): ElementPosition {
+    return this.configFile['plans'][planName]['css']['mapwindow']['map']['position'];
+  }
+
+  public setMapScreenMapPosition(planName: string, position: ElementPosition) {
+    const path = ['plans', planName, 'css', 'mapwindow', 'map', 'position'];
+    ipcRenderer.send('save-config-element', { path, value: position });
+  }
+
+  public getMapScreenMapSize(planName: string): ElementSize {
+    return this.configFile['plans'][planName]['css']['mapwindow']['map']['size'];
+  }
+
+  public setMapScreenMapSize(planName: string, size: ElementSize) {
+    const path = ['plans', planName, 'css', 'mapwindow', 'map', 'size'];
+    ipcRenderer.send('save-config-element', { path, value: size });
+  }
+
+
+  //////////////
+  public getMapScreenLineChartPosition(planName: string): ElementPosition {
+    return this.configFile['plans'][planName]['css']['mapwindow']['linechart']['position'];
+  }
+
+  public setMapScreenLineChartPosition(planName: string, position: ElementPosition) {
+    const path = ['plans', planName, 'css', 'mapwindow', 'linechart', 'position'];
+    ipcRenderer.send('save-config-element', { path, value: position });
+  }
+
+  public getMapScreenLineChartSize(planName: string): ElementSize {
+    return this.configFile['plans'][planName]['css']['mapwindow']['linechart']['size'];
+  }
+
+  public setMapScreenLineChartSize(planName: string, size: ElementSize) {
+    const path = ['plans', planName, 'css', 'mapwindow', 'linechart', 'size'];
+    ipcRenderer.send('save-config-element', { path, value: size });
+  }
+
+
+  ////////////////////
+  public getMapScreenPieChartPosition(planName: string): ElementPosition {
+    return this.configFile['plans'][planName]['css']['mapwindow']['piechart']['position'];
+  }
+
+  public setMapScreenPieChartPosition(planName: string, position: ElementPosition) {
+    const path = ['plans', planName, 'css', 'mapwindow', 'piechart', 'position'];
+    ipcRenderer.send('save-config-element', { path, value: position });
+  }
+
+  public getMapScreenPieChartSize(planName: string): ElementSize {
+    return this.configFile['plans'][planName]['css']['mapwindow']['piechart']['size'];
+  }
+
+  public setMapScreenPieChartSize(planName: string, size: ElementSize) {
+    const path = ['plans', planName, 'css', 'mapwindow', 'piechart', 'size'];
+    ipcRenderer.send('save-config-element', { path, value: size });
+  }
+
+  ////////////////////
+  public getMapScreenTextLabelPosition(planName: string): ElementPosition {
+    return this.configFile['plans'][planName]['css']['mapwindow']['textlabel']['position'];
+  }
+
+  public setMapScreenTextLabelPosition(planName: string, position: ElementPosition) {
+    const path = ['plans', planName, 'css', 'mapwindow', 'textlabel', 'position'];
+    ipcRenderer.send('save-config-element', { path, value: position });
+  }
+
+  public getMapScreenTextLabelSize(planName: string): number {
+    return this.configFile['plans'][planName]['css']['mapwindow']['textlabel']['size'];
+  }
+
+  public setMapScreenTextLabelSize(planName: string, size: number) {
+    const path = ['plans', planName, 'css', 'mapwindow', 'textlabel', 'size'];
+    ipcRenderer.send('save-config-element', { path, value: size });
+  }
+
+  public getConfigFile() {
+    return this.configFile;
   }
 }

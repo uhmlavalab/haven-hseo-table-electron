@@ -1,5 +1,6 @@
 import { Component, AfterViewInit, ViewChild, ElementRef, Input, OnChanges, SimpleChanges } from '@angular/core';
 import { ChartData } from '../../interfaces/ChartData';
+import { ElementSize } from '@app/core';
 
 
 @Component({
@@ -14,8 +15,7 @@ export class LineChartComponent implements AfterViewInit, OnChanges {
   @Input() title: string;
   @Input() legend: boolean;
   @Input() fontSize: number;
-  @Input() height: number;
-  @Input() width: number;
+  @Input() size: ElementSize;
 
   currentData: any;
 
@@ -27,15 +27,13 @@ export class LineChartComponent implements AfterViewInit, OnChanges {
 
   ngAfterViewInit() {
     this.initialDataSetup();
-    this.createLineChart(this.currentData);
+    this.createLineChart(this.currentData, 2016);
   }
 
   ngOnChanges(changes: SimpleChanges) {
-    if (changes.height && this.canvas) {
-      this.canvas.style.height = changes.height.currentValue + 'px';
-    }
-    if (changes.width && this.canvas) {
-      this.canvas.style.width = changes.width.currentValue + 'px';
+    if (changes.size && this.canvas) {
+      this.canvas.style.height = changes.size.currentValue.height + 'px';
+      this.canvas.style.width = changes.size.currentValue.width + 'px';
     }
   }
 
@@ -56,33 +54,21 @@ export class LineChartComponent implements AfterViewInit, OnChanges {
       };
       trace.data.forEach(el => {
         x.data.push({ x: el.x, y: el.y })
-        this.currentData.labels.push(el.y);
+        this.currentData.labels.push(el.x);
       });
       this.currentData.datasets.push(x);
     });
     this.currentData.labels = [...new Set(this.currentData.labels)];
-    console.log(this.currentData);
   }
 
-  private updateXAxis(x: number) {
-    const newData = [];
-    this.data.datasets.forEach(trace => {
-      const slice = trace.data.find(slice => slice.x == x);
-      if (slice) {
-        newData.push(slice.y);
-      }
-    });
-    this.currentData.datasets[0].data = newData;
-  }
-
-  private createLineChart(data: any) {
+  private createLineChart(data: any, x: number) {
     if (this.canvas) {
       this.chartDiv.nativeElement.removeChild(this.canvas);
     }
     this.canvas = document.createElement('canvas')
     this.chartDiv.nativeElement.appendChild(this.canvas);
-    this.canvas.style.width = this.width + 'px';
-    this.canvas.style.height = this.height + 'px';
+    this.canvas.style.width = this.size.width + 'px';
+    this.canvas.style.height = this.size.height + 'px';
     const canvasContext = this.canvas.getContext('2d');
     this.myChart = new Chart(canvasContext, {
       type: 'line',
@@ -95,7 +81,7 @@ export class LineChartComponent implements AfterViewInit, OnChanges {
               type: 'line',
               mode: 'vertical',
               scaleID: 'x-axis-0',
-              value: 2020,
+              value: x,
               borderWidth: 3,
               borderColor: 'white',
               borderDash: [5, 5],
@@ -161,21 +147,21 @@ export class LineChartComponent implements AfterViewInit, OnChanges {
   }
 
   public changeYear(year: number) {
-    this.updateXAxis(year);
-    this.updateChart();
+    this.updateChart(year);
   }
 
   public changeData(data: ChartData, x: number) {
     this.data = data;
     this.initialDataSetup();
-    this.updateXAxis(x)
     this.myChart.destroy();
-    this.createLineChart(this.currentData);
+    this.createLineChart(this.currentData, x);
   }
 
-  private updateChart() {
+  private updateChart(year: number) {
     if (this.data) {
       try {
+        this.myChart.options.annotation.annotations[0].value = year;
+        this.myChart.options.annotation.annotations[0].label.content = year;
         this.myChart.update();
       } catch (error) {
         console.log('Error. Failed to update Year for Line Chart.');
