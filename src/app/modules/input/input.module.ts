@@ -8,19 +8,22 @@ import { YearPuckComponent } from './puck-input/components/year-puck/year-puck.c
 import { VideoFeedComponent } from './puck-input/video-feed/video-feed.component';
 import { CalibrationComponent } from './puck-input/calibration/calibration.component';
 import { LeftRightPuckComponent } from './puck-input/components/left-right-puck/left-right-puck.component';
+import { LayerPuckComponent } from './puck-input/components/layer-puck/layer-puck.component';
 
 @NgModule({
   declarations: [
     YearPuckComponent,
     VideoFeedComponent,
     CalibrationComponent,
-    LeftRightPuckComponent
+    LeftRightPuckComponent,
+    LayerPuckComponent
   ],
   exports: [
     YearPuckComponent,
     VideoFeedComponent,
     CalibrationComponent,
-    LeftRightPuckComponent
+    LeftRightPuckComponent,
+    LayerPuckComponent
   ],
   imports: [
     CommonModule

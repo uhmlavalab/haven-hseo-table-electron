@@ -1,5 +1,3 @@
-aoiajiojefo
-
 <div class="calibration-start-container">
   <p class="calibration-start-instructions">
     To calibrate the pucks, remove all but one puck from the table. Place this puck into the white circle with the dot
@@ -30,9 +28,9 @@ aoiajiojefo
       Top Cam X: {{ centerX2 }} <br />
       Top Cam Y: {{ centerY2 }}
     </div>
-    <div class="selection-button" (click)="confirmPosition()">
+    <button class="selection-button" (click)="confirmPosition()">
       Confirm Position
-    </div>
+    </button>
     <div class="warning" [style.opacity]="detectionWarning ? '1' : '0'">
       Oops! Lost track of the marker, try again.
     </div>

@@ -1,21 +1,23 @@
-import { Component, AfterViewInit, ViewChildren, ViewChild } from '@angular/core';
-import { PlanService } from '@app/core';
+import { Component, AfterViewInit, ViewChildren, ViewChild, Input, SimpleChanges } from '@angular/core';
+import { PlanService, MapLayer } from '@app/core';
+import { ProjectableMarker } from '../../classes/ProjectableMarker';
 
 @Component({
   selector: 'app-layer-puck',
   templateUrl: './layer-puck.component.html',
   styleUrls: ['./layer-puck.component.css']
 })
-export class LayerPuckComponent implements AfterViewInit {
+export class LayerPuckComponent extends ProjectableMarker implements AfterViewInit {
 
   @ViewChildren('iconContainer') icons;
   @ViewChildren('slideIconContainer') slideIcons;
   @ViewChild('iconContainer', { static: false }) iconContainer;
   @ViewChild('layerPuckContainer', { static: false }) puckContainer;
 
-  private numberOfIcons: number;
-  private iconImages: { icon: string, text: string, image: string, active: boolean, color: string}[] = [];
-  private currentIcon: { icon: string, text: string, image: string, active: boolean, color: string};
+  @Input() mapLayers: MapLayer[];
+  @Input() selectedLayer: MapLayer;
+
+  private iconImages: { icon: string, text: string, image: string, active: boolean, color: string }[] = [];
   private currentIconIndex: number;
   private iconElements: any[] = [];
   private currentPosition: number;
@@ -23,44 +25,18 @@ export class LayerPuckComponent implements AfterViewInit {
   private addRemove: string;
 
   constructor(private planService: PlanService) {
-    this.iconImages = [];
-    // this.planService.getCurrentPlan().map.mapLayers.forEach(layer => {
-    //   this.iconImages.push({
-    //     icon: layer.iconPath,
-    //     text: layer.displayName,
-    //     image: layer.iconPath,
-    //     active: false,
-    //     color: layer.legendColor
-    //   });
-    // });
+    super();
+  }
 
-
-    this.currentIconIndex = 0;
-    this.currentIcon = this.iconImages[this.currentIconIndex];
-   }
+  ngOnChanges(changes: SimpleChanges) {
+    if (changes.selectedLayer) {
+      this.selectedLayer = changes.selectedLayer.currentValue;
+    }
+  }
 
   ngAfterViewInit() {
     this.iconElements = this.icons.first.nativeElement.children;
     this.positionElements(this.iconElements);
-
-  //   this.planService.layerChangeSubject.subscribe(direction => {
-  //     this.cycle(direction);
-  //   });
-
-  //   this.planService.resetLayersSubject.subscribe(emptySet => {
-  //     this.iconImages = emptySet;
-  //     this.iconElements = emptySet;
-  //   });
-    
-  // // Subscribe to layer toggling
-  // this.planService.toggleLayerSubject.subscribe((layer) => {
-  //   if (!layer.active) {
-  //     this.iconElements[this.currentIconIndex].style.opacity = 1;
-  //     this.currentIcon.active = false;
-  //   } else {
-  //     this.iconElements[this.currentIconIndex].style.opacity = 0.3;
-  //   }
-  // });
   }
 
   private positionElements(elements) {
@@ -95,12 +71,10 @@ export class LayerPuckComponent implements AfterViewInit {
     } else {
       this.currentIconIndex--;
     }
-    this.currentIcon = this.iconImages[this.currentIconIndex];
   }
 
   private incrementCurrentIconIndex() {
     this.currentIconIndex = (this.currentIconIndex + 1) % this.iconImages.length;
-    this.currentIcon = this.iconImages[this.currentIconIndex];
   }
 
 }

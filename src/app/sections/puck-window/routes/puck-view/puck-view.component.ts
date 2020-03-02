@@ -1,7 +1,6 @@
 import { Component, AfterViewInit, ViewChild, ElementRef } from '@angular/core';
-import { PuckService, ProjectableMarker } from '@app/input';
-import { YearPuckComponent } from 'src/app/modules/input/puck-input/components/year-puck/year-puck.component';
-import { PlanService } from '@app/core';
+import { PuckService, ProjectableMarker, LayerPuckComponent, YearPuckComponent } from '@app/input';
+import { PlanService, MapLayer, ElectronService, AppInput } from '@app/core';
 import { Subscription } from 'rxjs';
 
 @Component({
@@ -20,18 +19,34 @@ export class PuckViewComponent implements AfterViewInit {
   maxYear = 2045;
   currentYear = 2016;
 
+  @ViewChild('layerPuck', { static: false }) LayerPuck: LayerPuckComponent;
+  @ViewChild('layerPuck', { static: false, read: ElementRef }) LayerDiv: ElementRef;
+  mapLayers: MapLayer[];
+  selectedLayer: MapLayer;
+  layerDelay = 400;
+  layerMinRot = 10;
+  layerId = 5;
+
   pucks: { marker: ProjectableMarker, div: ElementRef }[] = [];
+  markersSub: Subscription;
 
   yearSubscription: Subscription;
 
-  constructor(private puckService: PuckService, private planService: PlanService) {
-
+  constructor(private puckService: PuckService, private planService: PlanService, private electronService: ElectronService) {
+    this.puckService.resetMarkersandVideos();
+    this.mapLayers = this.planService.getMapLayers();
+    this.selectedLayer = this.planService.getCurrentLayer();
   }
 
   ngAfterViewInit(): void {
+
     this.pucks.push({ marker: this.YearPuck, div: this.YearDiv });
+    this.pucks.push({ marker: this.LayerPuck, div: this.LayerDiv });
+
     this.puckService.addMarker(this.YearPuck);
-    this.puckService.markersSubject.subscribe(value => {
+    this.puckService.addMarker(this.LayerPuck);
+
+    this.markersSub = this.puckService.markersSubject.subscribe(value => {
       value.forEach(marker => {
         const puck = this.pucks.find(element => element.marker.markerId == marker.markerId);
         if (puck) {
@@ -43,21 +58,34 @@ export class PuckViewComponent implements AfterViewInit {
     this.yearSubscription = this.planService.currentYearSub.subscribe(year => {
       this.currentYear = year;
     })
+
+    this.planService.currentLayerSub.subscribe(layer => {
+      this.selectedLayer = layer;
+    });
+
   }
 
   ngOnDestroy() {
-    this.puckService.removeMarker(this.YearPuck.markerId);
+    this.puckService.resetMarkersandVideos();
+    this.markersSub.unsubscribe();
     this.yearSubscription.unsubscribe();
   }
 
   yearDecrease() {
-    this.planService.decrementCurrentYear();
+    this.electronService.appInput(AppInput.down);
   }
 
   yearIncrease() {
-    this.planService.incrementCurrentYear();
+    this.electronService.appInput(AppInput.up);
   }
 
+  layerDecrease() {
+    this.electronService.appInput(AppInput.minus);
+  }
+
+  layerIncrease() {
+    this.electronService.appInput(AppInput.plus);
+  }
 
   // /** Draws a line between the layer puck element and the add puck element.
   //  * Both of the pucks have to be detected and live for the line to be drawn.

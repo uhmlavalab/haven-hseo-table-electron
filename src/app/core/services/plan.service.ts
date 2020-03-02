@@ -36,7 +36,7 @@ export class PlanService {
   public currentLayerSub = new BehaviorSubject<MapLayer>(null);
 
   private generationData: {data: [], errors: [], meta: {}};
-  private capData: {data: [], errors: [], meta: {}};
+  private capacityData: {data: [], errors: [], meta: {}};
   private curtailmentData: {data: [], errors: [], meta: {}};
   private derData: {data: [], errors: [], meta: {}};
 
@@ -193,7 +193,6 @@ export class PlanService {
       return this.papa.parse(data, {
         header: true,
         complete: result => {
-          console.log(result);
           this.generationData = result as any;
         }
       })
@@ -205,8 +204,7 @@ export class PlanService {
       return this.papa.parse(data, {
         header: true,
         complete: result => {
-          console.log(result);
-          this.capData = result as any;
+          this.capacityData = result as any;
         }
       })
     });
@@ -218,7 +216,6 @@ export class PlanService {
         header: true,
         complete: result => {
           console.log(result);
-          this.curtailmentData = result as any;
         }
       })
     });
@@ -227,7 +224,28 @@ export class PlanService {
   // technology,year,scenario,value
   public getCapacityData(): ChartData {
     let chartData : ChartData = {datasets: []} as ChartData;
-    this.capData.data.forEach(element => {
+    this.capacityData.data.forEach(element => {
+      if (element['scenario'] == this.getCurrentScenario().name) {
+        const dataset = chartData.datasets.find(el => el.name == element['technology']);
+        const datapoint = {x: Number(element['year']), y: Number(element['value'])}
+        if (dataset) {
+          dataset.data.push(datapoint);
+        } else {
+          chartData.datasets.push({
+            name: element['technology'],
+            color: this.loadedPlan.data.colors[element['technology']],
+            data: [datapoint]
+          })
+        }
+      }
+    });
+    return chartData;
+  }
+  
+  //year,technology,value,scenario
+  public getGenerationData(): ChartData {
+    let chartData : ChartData = {datasets: []} as ChartData;
+    this.generationData.data.forEach(element => {
       if (element['scenario'] == this.getCurrentScenario().name) {
         const dataset = chartData.datasets.find(el => el.name == element['technology']);
         const datapoint = {x: Number(element['year']), y: Number(element['value'])}

@@ -1,4 +1,4 @@
-import { Component, HostListener, AfterViewInit, ViewChildren, ViewChild, Input, SimpleChanges, ChangeDetectorRef } from '@angular/core';
+import { Component, AfterViewInit, ViewChildren, ViewChild, Input, SimpleChanges, ChangeDetectorRef } from '@angular/core';
 import { ProjectableMarker } from '../../classes/ProjectableMarker';
 
 @Component({

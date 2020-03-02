@@ -24,16 +24,16 @@ export class CalibrationComponent implements OnInit {
   private centerX2: number;                     // Bottom Camera X
   private centerY2: number;                     // Bottom Camera Y
 
-  constructor(private arservice: PuckService) {
-    //this.setupCalibrationData();
+  constructor(private puckService: PuckService) {
+    this.setupCalibrationData();
    }
 
   ngOnInit() {
-    // this.arservice.calibrationSubject.subscribe({
-    //   next: value => {
-    //     this.calibrationDetected(value);
-    //   }
-    // });
+    this.puckService.calibrationSubject.subscribe({
+      next: value => {
+        this.calibrationDetected(value);
+      }
+    });
   }
 
    /** Initializes the data used for calibrating the pucks */
@@ -60,7 +60,7 @@ export class CalibrationComponent implements OnInit {
   /** Starts the Calibration process.  This is called from the HTML button */
   private startCalibration(): void {
     this.calibrating = true; // Update State
-    this.arservice.startCalibration(); // Update the state in the service
+    this.puckService.startCalibration(); // Update the state in the service
     this.manualPosition = 0; // Position 0
     this.manualCalibration(this.manualPosition); // Begin Calibration
   }
@@ -102,7 +102,7 @@ export class CalibrationComponent implements OnInit {
       }
       default: { // When index hits 6, the function is finished
         this.calibrating = false;
-        this.arservice.completeCalibration(true);
+        this.puckService.completeCalibration(true);
         // this.testTracking(); // Begin the offset adjustment process
         break;
       }
@@ -133,12 +133,12 @@ export class CalibrationComponent implements OnInit {
     }
 
     // Validate data
-    if (this.arservice.getTrackingPointId() === 0 || this.arservice.getTrackingPointId() === 1) {
+    if (this.puckService.getTrackingPointId() === 0 || this.puckService.getTrackingPointId() === 1) {
       if (this.centerX2 === 0 || this.centerY2 === 0) {
         alert('Top Camera did not capture any location Data.  Please try again.');
         return;
       }
-    } else if (this.arservice.getTrackingPointId() === 2 || this.arservice.getTrackingPointId() === 3) {
+    } else if (this.puckService.getTrackingPointId() === 2 || this.puckService.getTrackingPointId() === 3) {
       if (this.centerX2 === 0 || this.centerY2 === 0 || this.centerX === 0 || this.centerY === 0) {
         alert('At least one data point was not captured.  Please Try Again');
         return;
@@ -153,7 +153,7 @@ export class CalibrationComponent implements OnInit {
     const element = this.manualPoint.nativeElement.getBoundingClientRect();
     const mapX = (element.right + element.left) / 2;
     const mapY = (element.top + element.bottom) / 2;
-    this.arservice.createTrackingPoint(this.centerX, this.centerY, this.centerX2, this.centerY2, mapX, mapY);
+    this.puckService.createTrackingPoint(this.centerX, this.centerY, this.centerX2, this.centerY2, mapX, mapY);
     this.manualPosition++;
     this.manualCalibration(this.manualPosition); // Continue to next position.
   }

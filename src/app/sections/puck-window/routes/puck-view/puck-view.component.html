@@ -1,3 +1,5 @@
 <app-video-feed width=100 height=100 feedNumber=0></app-video-feed>
 
 <app-year-puck #yearPuck [markerId]="yearId" [minRotation]="yearMinRot" [delay]="yearDelay" [minYear]="minYear" [maxYear]="maxYear" [currentYear]="currentYear" (rotateLeft)="yearDecrease()" (rotateRight)="yearIncrease()"></app-year-puck>
+
+<app-layer-puck #layerPuck   [markerId]="layerId" [minRotation]="layerMinRot" [delay]="layerDelay" [mapLayers]="mapLayer" [selectedLayer]="selectedLayer" (rotateLeft)="layerDecrease()" (rotateRight)="layerIncrease()"></app-layer-puck>

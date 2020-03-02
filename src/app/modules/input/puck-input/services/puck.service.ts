@@ -4,11 +4,10 @@ import { _ } from 'underscore';
 import AR from 'js-aruco';
 import { Subject } from 'rxjs';
 import { VideoFeed } from '../interfaces/VideoFeed';
-
-import { defaultTrackingPoints } from './defaultTrackingPoints';
 import { ProjectableMarker } from '../classes/ProjectableMarker';
 import { TrackingPoint } from '../classes/trackingPoint';
 import { PuckDataPoint } from '../interfaces/PuckDataPoint';
+import { ElectronService } from '@app/core';
 
 
 @Injectable({
@@ -53,7 +52,9 @@ export class PuckService {
   private videoFeedArray: VideoFeed[] = [];
   private markers: ProjectableMarker[] = [];
 
-  constructor() {
+  private defaultTrackingPoints: any;
+
+  constructor(private electronService: ElectronService) {
 
     /* Aruco Js library requires AR.AR. for access */
     this.detector = new AR.AR.Detector();
@@ -62,13 +63,8 @@ export class PuckService {
 
     this.trackingIsSet = true; // Tracking is always set.
 
-    try {
-      this.createDefaultTrackingPoints();
-    } catch (error) {
-      console.log('No Default Data File Found, cannot create tracking points.')
-    }
 
-    this.completeCalibration(false);  // Set up tracking without generating a new file.
+
 
   }
 
@@ -76,6 +72,11 @@ export class PuckService {
   public addMarker(marker: ProjectableMarker) {
     console.log(marker);
     this.markers.push(marker);
+  }
+
+  public resetMarkersandVideos() {
+    this.markers = [];
+    this.videoFeedArray = [];
   }
 
   // Remove a marker from the array of markers
@@ -93,7 +94,7 @@ export class PuckService {
     /* Holds the raw aruco marker data from each camera */
     const tempMarkerData = [];
 
-    this.videoFeedArray.forEach(videoFeed => {    
+    this.videoFeedArray.forEach(videoFeed => {
       if (videoFeed.video.readyState === videoFeed.video.HAVE_ENOUGH_DATA) {
 
         // Collect the Image data for the detector
@@ -105,7 +106,7 @@ export class PuckService {
         // Run detect marker for each one
         arucoMarkers.forEach(marker => {
           const mark = this.markers.find(el => el.getId() == marker.id);
-    
+
           if (mark) {
             tempMarkerData.push({
               marker: mark,
@@ -207,6 +208,17 @@ export class PuckService {
    *                      contain a video element and a canavas element.
    */
   public addVideoFeed(videoFeed: VideoFeed): any {
+    if (!this.defaultTrackingPoints) {
+      this.defaultTrackingPoints = this.electronService.getDefaultTrackingPoints();
+      if (this.defaultTrackingPoints) {
+
+        this.createDefaultTrackingPoints();
+        this.completeCalibration(false);  // Set up tracking without generating a new file.
+      } else {
+        setTimeout(() => this.addVideoFeed(videoFeed), 200);
+
+      }
+    }
     this.videoFeedArray.push(videoFeed);
     if (this.videoFeedArray.length === 0) {
       console.log('Video Elements Not Instantiated');
@@ -224,15 +236,15 @@ export class PuckService {
 
   /** Creates tracking point data from the default data file. */
   private createDefaultTrackingPoints(): void {
-    defaultTrackingPoints.trackingPoints.forEach(point => {
+    this.defaultTrackingPoints.trackingPoints.forEach(point => {
       this.createTrackingPoint(point.camX, point.camY, point.cam2X, point.cam2Y, point.mapX, point.mapY);
     });
 
     // The offsets are the x and y adjustments to the tracking that allow for more precise tracking.
-    this.xOffset = defaultTrackingPoints.offsets.xOffset;
-    this.yOffset = defaultTrackingPoints.offsets.yOffset;
-    this.xOffset2 = defaultTrackingPoints.offsets.xOffset2;
-    this.yOffset2 = defaultTrackingPoints.offsets.yOffset2;
+    this.xOffset = this.defaultTrackingPoints.offsets.xOffset;
+    this.yOffset = this.defaultTrackingPoints.offsets.yOffset;
+    this.xOffset2 = this.defaultTrackingPoints.offsets.xOffset2;
+    this.yOffset2 = this.defaultTrackingPoints.offsets.yOffset2;
   }
 
   /** Finishes the calibration process
@@ -253,6 +265,9 @@ export class PuckService {
     this.mapWidth2 = this.trackingPoints[1].getMapX() - this.trackingPoints[0].getMapX();
     this.camHeight2 = this.trackingPoints[2].getCam2X() - this.trackingPoints[1].getCam2X();
     this.camWidth2 = this.trackingPoints[3].getCam2Y() - this.trackingPoints[2].getCam2Y();
+    if (createFile) {
+      this.electronService.setDefaultTrackingPoints(this.defaultTrackingPoints);
+    }
     return true;
   }
 

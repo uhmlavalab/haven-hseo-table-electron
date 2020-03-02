@@ -79,3 +79,7 @@ p {
   position: relative;
   text-align: center;
 }
+
+.selection-button {
+  z-index: 1000;
+}

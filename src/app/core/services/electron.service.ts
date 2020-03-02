@@ -282,4 +282,16 @@ export class ElectronService {
   public getConfigFile() {
     return this.configFile;
   }
+
+  public getDefaultTrackingPoints() {
+    if (this.configFile) {
+      return this.configFile.defaultTrackingPoints;
+    }
+    else false;
+  }
+
+  public setDefaultTrackingPoints(trackingPoints: any) {
+    const path = ['defaultTrackingPoints'];
+    ipcRenderer.send('save-config-element', { path, value: trackingPoints });
+  }
 }

@@ -2,6 +2,7 @@ import { Component, ElementRef, ViewChild, AfterViewInit, OnDestroy } from '@ang
 import { PuckService, ProjectableMarker } from 'src/app/modules/input';
 import { ElectronService, AppInput } from '@app/core';
 import { LeftRightPuckComponent } from 'src/app/modules/input/puck-input/components/left-right-puck/left-right-puck.component';
+import { Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-puck-plan-selection',
@@ -25,15 +26,19 @@ export class PuckPlanSelectionComponent implements  AfterViewInit, OnDestroy {
   enterText = "Rotate to Choose Selection";
 
   pucks: { marker: ProjectableMarker, div: ElementRef }[] = [];
+  markersSub: Subscription;
 
-  constructor(private puckService: PuckService, private electronService: ElectronService) { }
+  constructor(private puckService: PuckService, private electronService: ElectronService) { 
+    this.puckService.resetMarkersandVideos();
+
+  }
 
   ngAfterViewInit(): void {
     this.pucks.push({ marker: this.CursorPuck, div: this.CursorDiv });
     this.pucks.push({ marker: this.EnterPuck, div: this.EnterDiv });
     this.puckService.addMarker(this.CursorPuck);
     this.puckService.addMarker(this.EnterPuck);
-    this.puckService.markersSubject.subscribe(value => {
+    this.markersSub = this.puckService.markersSubject.subscribe(value => {
       value.forEach(marker => {
         const puck = this.pucks.find(element => element.marker.markerId == marker.markerId);
         if (puck) {
@@ -44,8 +49,8 @@ export class PuckPlanSelectionComponent implements  AfterViewInit, OnDestroy {
   }
 
   ngOnDestroy() {
-    this.puckService.removeMarker(this.CursorPuck.markerId);
-    this.puckService.removeMarker(this.EnterPuck.markerId);
+    this.puckService.resetMarkersandVideos();
+    this.markersSub.unsubscribe();
   }
 
   rotateLeft() {
