@@ -1,5 +1,5 @@
 .right-edge {
-    width: 8px;
+    width: 4px;
     right: 0px;
     height: 100vh;
     top: 0px;
@@ -10,5 +10,9 @@
 .button-list {
     position: absolute; 
     left: 1rem; 
-    bottom: 1rem;
+    top: 1rem;
+}
+
+.button-list > button {
+    margin: 2px;
 }

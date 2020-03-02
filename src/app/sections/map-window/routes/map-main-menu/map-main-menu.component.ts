@@ -1,4 +1,4 @@
-import { Component, ChangeDetectorRef } from '@angular/core';
+import { Component, ChangeDetectorRef, OnDestroy } from '@angular/core';
 import { ElectronService, AppRoutes, AppInput } from '@app/core';
 import { Subscription } from 'rxjs';
 import { InputService } from '@app/input';
@@ -15,11 +15,11 @@ interface MenuOption {
   templateUrl: './map-main-menu.component.html',
   styleUrls: ['./map-main-menu.component.css']
 })
-export class MapMainMenuComponent  {
+export class MapMainMenuComponent implements OnDestroy {
 
   menuOptions: MenuOption[] = [
     {
-      name: 'Plan Selection',
+      name: 'Islands',
       selected: false,
       route: AppRoutes.planselection,
       click: () => this.routeToPlanSelection() 
@@ -52,12 +52,34 @@ export class MapMainMenuComponent  {
   electronMessageSub: Subscription;
 
   constructor(private electronService: ElectronService, private detectorRef: ChangeDetectorRef, private inputService: InputService) {
-    this.inputService.deregisterAllKeyboardEvents();
-    this.inputService.registerKeyboardEvent({ keyname: 'ArrowLeft', eventFunction: () => this.shiftSelectionLeft() });
-    this.inputService.registerKeyboardEvent({ keyname: 'ArrowRight', eventFunction: () => this.shiftSelectionRight() });
-    this.inputService.registerKeyboardEvent({ keyname: 'Enter', eventFunction: () => this.selectOption() });
+
 
     this.menuOptions[0].selected = true;
+
+    this.electronMessageSub = this.electronService.windowMessageSubject.subscribe(value => {
+      console.log(value);
+      if (value.type == 'input') {
+        this.processInput(value.input);
+      }
+    })
+  }
+
+  ngOnDestroy(){
+    this.electronMessageSub.unsubscribe();
+  }
+
+  processInput(input: AppInput) {
+    switch (input) {
+      case AppInput.left: 
+        this.shiftSelectionLeft();
+        break;
+      case AppInput.right:
+        this.shiftSelectionRight();
+        break;
+      case AppInput.enter:
+        this.selectOption();
+        break;
+    }
   }
 
   shiftSelectionRight() {

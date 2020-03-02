@@ -21,7 +21,10 @@ export enum AppInput {
   up = 'up',
   down = 'down',
   backward = 'backward',
-  forward = 'forward'
+  forward = 'forward',
+  minus = 'minus',
+  plus = 'plus',
+  esc = 'esc'
 }
 
 @Injectable({
@@ -30,7 +33,7 @@ export enum AppInput {
 export class ElectronService {
 
   windowName: string;
-  windowMessageSubject = new BehaviorSubject<any>(null);
+  windowMessageSubject = new Subject<any>();
 
   rerouteSubject = new Subject<AppRoutes>();
 
@@ -155,6 +158,13 @@ export class ElectronService {
 
   public appInput(input: AppInput) {
     this.sendMessage({ type: 'input', input: input })
+    this.windowMessageSubject.next({ type: 'input', input: input });
+  }
+
+  public loadPlan(planname: string) {
+    this.sendMessage({ type: 'plan-load', 'planname': planname });
+    this.windowMessageSubject.next({ type: 'plan-load', 'planname': planname });
+
   }
 
   public appStateUpdate(stateType) {
@@ -181,6 +191,25 @@ export class ElectronService {
 
   public setMapScreenMapSize(planName: string, size: ElementSize) {
     const path = ['plans', planName, 'css', 'mapwindow', 'map', 'size'];
+    ipcRenderer.send('save-config-element', { path, value: size });
+  }
+
+  ////////
+  public getSecondScreenMapPosition(planName: string): ElementPosition {
+    return this.configFile['plans'][planName]['css']['secondwindow']['map']['position'];
+  }
+
+  public setSecondScreenMapPosition(planName: string, position: ElementPosition) {
+    const path = ['plans', planName, 'css', 'secondwindow', 'map', 'position'];
+    ipcRenderer.send('save-config-element', { path, value: position });
+  }
+
+  public getSecondScreenMapSize(planName: string): ElementSize {
+    return this.configFile['plans'][planName]['css']['secondwindow']['map']['size'];
+  }
+
+  public setSecondScreenMapSize(planName: string, size: ElementSize) {
+    const path = ['plans', planName, 'css', 'secondwindow', 'map', 'size'];
     ipcRenderer.send('save-config-element', { path, value: size });
   }
 
@@ -241,6 +270,13 @@ export class ElectronService {
   public setMapScreenTextLabelSize(planName: string, size: number) {
     const path = ['plans', planName, 'css', 'mapwindow', 'textlabel', 'size'];
     ipcRenderer.send('save-config-element', { path, value: size });
+  }
+
+  public resetPositions(planname: string) {
+    this.setMapScreenLineChartPosition(planname, { x: 0, y: 0 });
+    this.setMapScreenMapPosition(planname, { x: 0, y: 0 });
+    this.setMapScreenTextLabelPosition(planname, { x: 0, y: 0 });
+    this.setMapScreenPieChartPosition(planname, { x: 0, y: 0 });
   }
 
   public getConfigFile() {

@@ -45,6 +45,14 @@ let configFile = {
           map: {
             position: { x: 0, y: 0 },
             size: {width: 0, height: 0},
+          },
+          legend: {
+            position: {x: 0, y: 0},
+            size: {width: 200, height: 1000}
+          },
+          layerdetails: {
+            position: {x:0, y: 0},
+            size: {width: 400, height: 400}
           }
         }
       }

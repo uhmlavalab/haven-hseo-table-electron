@@ -1,9 +1,9 @@
 import { Component, AfterViewInit, ChangeDetectorRef, ViewChild, ElementRef } from '@angular/core';
-import { PlanService, ElementPosition, ElectronService, ElementSize, Scenario, MapLayer } from '@app/core';
+import { PlanService, ElementPosition, ElectronService, ElementSize, Scenario, MapLayer, AppInput } from '@app/core';
 
 import { ChartData, PieChartComponent, LineChartComponent } from '@app/charts';
 import { MapElementComponent } from '@app/maps';
-import { InputService } from 'src/app/modules/input';
+import { Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-map-view',
@@ -27,7 +27,7 @@ export class MapViewComponent implements AfterViewInit {
   @ViewChild('map', { static: false, read: ElementRef }) mapDiv: ElementRef;
   mapPosition: ElementPosition;
   mapSize: ElementSize;
-  mapBounds = [[-158.281, 21.710], [-157.647, 21.252]];
+  mapBounds: [[number, number], [number, number]];
   baseImageURL: string;
 
 
@@ -49,22 +49,17 @@ export class MapViewComponent implements AfterViewInit {
 
   pieData: ChartData;
 
-  constructor(private planService: PlanService, private detectorRef: ChangeDetectorRef, private electronService: ElectronService, private InputService: InputService) {
+  electronMessageSub: Subscription;
+
+
+  constructor(private planService: PlanService, private detectorRef: ChangeDetectorRef, private electronService: ElectronService) {
     this.scenario = this.planService.getCurrentScenario();
     this.layer = this.planService.getCurrentLayer();
     this.year = this.planService.getCurrentYear();
     this.pieData = this.planService.getCapacityData();
     this.baseImageURL = this.planService.getBaseImagePath();
     this.planLayers = this.planService.getMapLayers();
-
-    this.InputService.registerKeyboardEvent({keyname: 'ArrowUp', eventFunction: () => this.planService.incrementCurrentYear()});
-    this.InputService.registerKeyboardEvent({keyname: 'ArrowDown', eventFunction: () => this.planService.decrementCurrentYear()});
-
-    this.InputService.registerKeyboardEvent({keyname: 'ArrowLeft', eventFunction: () => this.planService.decrementScenario()});
-    this.InputService.registerKeyboardEvent({keyname: 'ArrowRight', eventFunction: () => this.planService.incrementScenario()});
-
-    this.InputService.registerKeyboardEvent({keyname: '=', eventFunction: () => this.planService.incrementNextLayer()});
-    this.InputService.registerKeyboardEvent({keyname: '-', eventFunction: () => this.planService.decrementNextLayer()}); 
+    this.mapBounds = this.planService.getMapBounds();
 
     this.mapPosition = this.electronService.getMapScreenMapPosition(this.planName);
     this.mapSize = this.electronService.getMapScreenMapSize(this.planName);
@@ -77,12 +72,44 @@ export class MapViewComponent implements AfterViewInit {
 
     this.textLabelPosition = this.electronService.getMapScreenTextLabelPosition(this.planName);
     this.textLabelSize = this.electronService.getMapScreenTextLabelSize(this.planName);
-    console.log(this.textLabelPosition);
 
+    this.electronMessageSub = this.electronService.windowMessageSubject.subscribe(value => {
+      if (value.type == 'input') {
+        this.processInput(value.input);
+      }
+    })
   }
 
-  ngAfterViewInit(): void {
+  processInput(input: AppInput) {
+    switch (input) {
+      case AppInput.left:
+        this.planService.decrementScenario()
+        break;
+      case AppInput.right:
+        this.planService.incrementScenario()
+        break;
+      case AppInput.minus:
+        this.planService.decrementNextLayer()
+        break;
+      case AppInput.plus:
+        this.planService.incrementNextLayer()
+        break;
+      case AppInput.up:
+        this.planService.incrementCurrentYear()
+        break;
+      case AppInput.down:
+        this.planService.decrementCurrentYear()
+        break;
+      case AppInput.enter:
+        this.planService.toggleLayer()
+        break;
+    }
+  }
 
+  ngOnDestroy() {
+    this.electronMessageSub.unsubscribe();
+  }
+  ngAfterViewInit(): void {
 
     this.positionMap(this.mapPosition);
     this.sizeMap(this.mapSize);
@@ -109,12 +136,12 @@ export class MapViewComponent implements AfterViewInit {
 
     this.pieDiv.nativeElement.addEventListener("wheel", (event) => {
       const resize = (event.deltaY > 0) ? 4 : -4;
-      this.resizePieChart(resize); 
+      this.resizePieChart(resize);
     });
 
     this.textLabel.nativeElement.addEventListener("wheel", (event) => {
       const resize = (event.deltaY > 0) ? 1 : -1;
-      this.resizeTextLabel(resize); 
+      this.resizeTextLabel(resize);
     });
 
     this.planService.currentYearSub.subscribe(year => {
@@ -132,6 +159,7 @@ export class MapViewComponent implements AfterViewInit {
 
     this.planService.currentLayerSub.subscribe(layer => {
       this.layer = layer;
+      this.map.updateLayers();
       this.detectorRef.detectChanges();
     });
   }
@@ -164,7 +192,7 @@ export class MapViewComponent implements AfterViewInit {
     this.mapPosition.y = this.mapDiv.nativeElement.getBoundingClientRect().top;
     this.electronService.setMapScreenMapPosition(this.planName, this.mapPosition);
   }
-  
+
   onLabelDragEnd() {
     this.textLabelPosition.x = this.textLabel.nativeElement.getBoundingClientRect().left;
     this.textLabelPosition.y = this.textLabel.nativeElement.getBoundingClientRect().top;
@@ -173,16 +201,16 @@ export class MapViewComponent implements AfterViewInit {
 
   positionMap(position: ElementPosition) {
     this.mapDiv.nativeElement.style.left = position.x + 'px';
-    this.mapDiv.nativeElement.style.top = position.y  + 'px';
+    this.mapDiv.nativeElement.style.top = position.y + 'px';
   }
 
   sizeMap(size: ElementSize) {
     this.mapSize = size;
   }
-  
+
   positionLineChart(position: ElementPosition) {
     this.lineDiv.nativeElement.style.left = position.x + 'px';
-    this.lineDiv.nativeElement.style.top = position.y  + 'px';
+    this.lineDiv.nativeElement.style.top = position.y + 'px';
   }
 
   sizeLineChart(size: ElementSize) {
@@ -191,8 +219,8 @@ export class MapViewComponent implements AfterViewInit {
 
   positionPieChart(position: ElementPosition) {
     this.pieDiv.nativeElement.style.left = position.x + 'px';
-    this.pieDiv.nativeElement.style.top = position.y  + 'px'; 
-  } 
+    this.pieDiv.nativeElement.style.top = position.y + 'px';
+  }
 
   sizePieChart(size: ElementSize) {
     this.pieSize = size;
@@ -200,31 +228,31 @@ export class MapViewComponent implements AfterViewInit {
 
   positionTextLabel(position: ElementPosition) {
     this.textLabel.nativeElement.style.left = position.x + 'px';
-    this.textLabel.nativeElement.style.top = position.y  + 'px'; 
+    this.textLabel.nativeElement.style.top = position.y + 'px';
   }
 
   sizeTextLabel(size: number) {
-    this.textLabel.nativeElement.style.fontSize = size + 'px'; 
+    this.textLabel.nativeElement.style.fontSize = size + 'px';
   }
 
   mapResize(resize: number) {
     const width = this.mapSize.width + resize;
     const height = this.mapSize.height + resize;
-    this.mapSize = {width, height};
+    this.mapSize = { width, height };
     this.electronService.setMapScreenMapSize(this.planName, this.mapSize);
   }
- 
+
   resizeLineChart(resize: number) {
     const width = this.lineSize.width + resize;
     const height = this.lineSize.height + resize;
-    this.lineSize = {width, height};
+    this.lineSize = { width, height };
     this.electronService.setMapScreenLineChartSize(this.planName, this.lineSize);
 
   }
   resizePieChart(resize: number) {
     const width = this.pieSize.width + resize;
     const height = this.pieSize.height + resize;
-    this.pieSize = {width, height};
+    this.pieSize = { width, height };
     this.electronService.setMapScreenPieChartSize(this.planName, this.pieSize);
   }
 
@@ -233,5 +261,5 @@ export class MapViewComponent implements AfterViewInit {
     this.sizeTextLabel(this.textLabelSize)
     this.electronService.setMapScreenTextLabelSize(this.planName, this.textLabelSize);
   }
- 
+
 }

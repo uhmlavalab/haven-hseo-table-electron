@@ -49,10 +49,8 @@ export class MapElementComponent implements OnInit {
       .attr('width', this.size.width)
       .attr('height', this.size.height);
 
-  
-
     this.mapLayers.forEach(mapLayer => {
-      mapLayer.active = true;
+      mapLayer.active = false;
       d3.json(mapLayer.filePath, (error, geoData) => {
         const bounds = [this.projection(this.bounds[0]), this.projection(this.bounds[1])];
         const scale = 1 / Math.max((bounds[1][0] - bounds[0][0]) / this.size.width, (bounds[1][1] - bounds[0][1]) / this.size.height);
@@ -77,7 +75,6 @@ export class MapElementComponent implements OnInit {
           .each(function (d) {
             mapLayer.parcels.push({ path: this, properties: (d.hasOwnProperty(`properties`)) ? d[`properties`] : null } as Parcel);
           }).call(() => {
-            console.log(mapLayer.parcels);
             if (mapLayer.setupFunction !== null) {
               mapLayer.setupFunction(this.planService);
             } else {
@@ -98,8 +95,10 @@ export class MapElementComponent implements OnInit {
 
   updateLayers() {
     this.mapLayers.forEach(layer => {
-      if (layer.updateFunction) {
+      if (layer.updateFunction !== null) {
         layer.updateFunction(this.planService);
+      } else {
+        this.defaultFill(layer);
       }
     })
   }

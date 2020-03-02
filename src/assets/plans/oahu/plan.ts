@@ -39,92 +39,159 @@ export const OahuPlan: Plan = {
     bounds: [[-158.281, 21.710], [-157.647, 21.252]],
     baseMapPath: 'assets/plans/oahu/images/oahu-satellite5.png',
     mapLayers: [
-      // {
-      //   name: 'transmission',
-      //   displayName: 'Transmission Lines',
-      //   active: false,
-      //   included: true,
-      //   iconPath: 'assets/plans/oahu/images/icons/transmission-icon.png',
-      //   secondScreenImagePath: 'assets/plans/oahu/images/second-screen-images/layer-images/transmission.jpg',
-      //   secondScreenText: 'This layer shows the high-voltage electric transmission system for the island of Oahu. Transmission is important for moving bulk power from utility-scale generation to load centers.',
-      //   fillColor: mapLayerColors.Transmission.fill,
-      //   borderColor: mapLayerColors.Transmission.border,
-      //   borderWidth: 0.02,
-      //   legendColor: mapLayerColors.Transmission.border,
-      //   filePath: 'assets/plans/oahu/layers/transmission.json',
-      //   parcels: [],
-      //   setupFunction(planService: PlanService) {
-      //     this.parcels.forEach(parcel => {
-      //       d3.select(parcel.path)
-      //         .style('fill', this.fillColor)
-      //         .style('opacity', this.active ? 0.85 : 0.0)
-      //         .style('stroke', this.borderColor)
-      //         .style('stroke-width', (this.borderWidth * parcel.properties.Voltage_kV) + 'px');
-      //     });
-      //   },
-      //   updateFunction(planService: PlanService) {
-      //     this.parcels.forEach(parcel => {
-      //       d3.select(parcel.path)
-      //         .style('opacity', this.active ? 0.85 : 0.0);
-      //     });
-      //   },
-      // },
-      // {
-      //   name: 'dod',
-      //   displayName: 'Government Lands',
-      //   active: false,
-      //   included: true,
-      //   iconPath: 'assets/plans/oahu/images/icons/dod-icon.png',
-      //   secondScreenImagePath: 'assets/plans/oahu/images/second-screen-images/layer-images/dod.jpg',
-      //   secondScreenText: 'This layer shows land owned by different levels of government including Federal, State, County, and DHHL.',
-      //   fillColor: mapLayerColors.Dod.fill,
-      //   borderColor: mapLayerColors.Dod.border,
-      //   borderWidth: 1,
-      //   legendColor: mapLayerColors.Dod.fill,
-      //   filePath: 'assets/plans/oahu/layers/government1.json',
-      //   parcels: [],
-      //   setupFunction(planService: PlanService) {
-      //     const colors = {
-      //       'Public-Federal': '#e60000',
-      //       'Public-State': '#ff7f7f',
-      //       'Public-State DHHL': '#895a44',
-      //       'Public-County': '#00c5ff',
-      //     }
-      //     this.parcels.forEach(parcel => {
-      //       d3.select(parcel.path)
-      //         .style('fill', colors[parcel.properties.type])
-      //         .style('opacity', this.active ? 0.85 : 0.0)
-      //         .style('stroke', this.borderColor)
-      //         .style('stroke-width', this.borderWidth + 'px');
-      //     });
-      //   },
-      //   updateFunction(planService: PlanService) {
-      //     this.parcels.forEach(parcel => {
-      //       d3.select(parcel.path)
-      //         .style('opacity', this.active ? 0.85 : 0.0);
-      //     });
-      //   },      
-      // },
-      // {
-      //   name: 'parks',
-      //   displayName: 'Park Lands',
-      //   active: false,
-      //   included: true,
-      //   iconPath: 'assets/plans/oahu/images/icons/parks-icon.png',
-      //   secondScreenImagePath: 'assets/plans/oahu/images/second-screen-images/layer-images/parks.jpg',
-      //   secondScreenText: 'This layer shows the location of park lands on Oahu.',
-      //   fillColor: mapLayerColors.Parks.fill,
-      //   borderColor: mapLayerColors.Parks.border,
-      //   borderWidth: 1,
-      //   legendColor: mapLayerColors.Parks.fill,
-      //   filePath: 'assets/plans/oahu/layers/parks.json',
-      //   parcels: [],
-      //   setupFunction: null,
-      //   updateFunction: null,
-      // },
+      {
+        name: 'transmission',
+        displayName: 'Transmission',
+        description: 'Transmission Description',
+        legendItems: [
+          {
+            name: 'Transmission Lines',
+            color : mapLayerColors.Transmission.border,
+            propertyName: 'default'
+          }
+        ],
+        active: false,
+        included: true,
+        iconPath: 'assets/plans/oahu/images/icons/transmission-icon.png',
+        secondScreenImagePath: 'assets/plans/oahu/images/second-screen-images/layer-images/transmission.jpg',
+        secondScreenText: 'This layer shows the high-voltage electric transmission system for the island of Oahu. Transmission is important for moving bulk power from utility-scale generation to load centers.',
+        fillColor: mapLayerColors.Transmission.fill,
+        borderColor: mapLayerColors.Transmission.border,
+        borderWidth: 0.02,
+        legendColor: mapLayerColors.Transmission.border,
+        filePath: 'assets/plans/oahu/layers/transmission.json',
+        parcels: [],
+        setupFunction(planService: PlanService) {
+          this.parcels.forEach(parcel => {
+            d3.select(parcel.path)
+              .style('fill', this.fillColor)
+              .style('opacity', this.active ? 0.85 : 0.0)
+              .style('stroke', this.borderColor)
+              .style('stroke-width', (this.borderWidth * parcel.properties.Voltage_kV) + 'px');
+          });
+        },
+        updateFunction(planService: PlanService) {
+          this.parcels.forEach(parcel => {
+            d3.select(parcel.path)
+              .style('opacity', this.active ? 0.85 : 0.0);
+          });
+        },
+      },
+      {
+        name: 'dod',
+        displayName: 'Government',
+        description: 'Government Description',
+        legendItems: [
+          {
+            name: 'Public Federal',
+            color :'#e60000',
+            propertyName: 'Public-Federal'
+          },
+          {
+            name: 'Public State',
+            color :'#ff7f7f',
+            propertyName: 'Public-State'
+          },
+          {
+            name: 'Public State DHHL',
+            color :'#895a44',
+            propertyName: 'Public-State DHHL'
+          },
+          {
+            name: 'Public County',
+            color :'#00c5ff',
+            propertyName: 'Public-County'
+          },
+        ],
+        active: false,
+        included: true,
+        iconPath: 'assets/plans/oahu/images/icons/dod-icon.png',
+        secondScreenImagePath: 'assets/plans/oahu/images/second-screen-images/layer-images/dod.jpg',
+        secondScreenText: 'This layer shows land owned by different levels of government including Federal, State, County, and DHHL.',
+        fillColor: mapLayerColors.Dod.fill,
+        borderColor: mapLayerColors.Dod.border,
+        borderWidth: 1,
+        legendColor: mapLayerColors.Dod.fill,
+        filePath: 'assets/plans/oahu/layers/government1.json',
+        parcels: [],
+        setupFunction(planService: PlanService) {
+          const colors = {
+            'Public-Federal': '#e60000',
+            'Public-State': '#ff7f7f',
+            'Public-State DHHL': '#895a44',
+            'Public-County': '#00c5ff',
+          }
+          this.parcels.forEach(parcel => {
+            d3.select(parcel.path)
+              .style('fill', colors[parcel.properties.type])
+              .style('opacity', this.active ? 0.85 : 0.0)
+              .style('stroke', this.borderColor)
+              .style('stroke-width', this.borderWidth + 'px');
+          });
+        },
+        updateFunction(planService: PlanService) {
+          this.parcels.forEach(parcel => {
+            d3.select(parcel.path)
+              .style('opacity', this.active ? 0.85 : 0.0);
+          });
+        },      
+      },
+      {
+        name: 'parks',
+        displayName: 'Parks',
+        description: 'Parks Description',
+        legendItems: [
+          {
+            name: 'Parks',
+            color : mapLayerColors.Parks.fill,
+            propertyName: 'default'
+          }
+        ],
+        active: false,
+        included: true,
+        iconPath: 'assets/plans/oahu/images/icons/parks-icon.png',
+        secondScreenImagePath: 'assets/plans/oahu/images/second-screen-images/layer-images/parks.jpg',
+        secondScreenText: 'This layer shows the location of park lands on Oahu.',
+        fillColor: mapLayerColors.Parks.fill,
+        borderColor: mapLayerColors.Parks.border,
+        borderWidth: 1,
+        legendColor: mapLayerColors.Parks.fill,
+        filePath: 'assets/plans/oahu/layers/parks.json',
+        parcels: [],
+        setupFunction: null,
+        updateFunction: null,
+      },
       {
         name: 'existing_re',
-        displayName: 'Existing Renewables',
+        displayName: 'Existing RE',
+        description: 'Existing RE Description',
+        legendItems: [
+          {
+            name: 'Solar Approved By Regulator',
+            color : '#e60000',
+            propertyName: 'solar approved by regulator'
+          },
+          {
+            name: 'Solar Completed',
+            color : '#ff7f7f',
+            propertyName: 'solar completed'
+          },
+          {
+            name: 'Solar Under Construction',
+            color : '#895a44',
+            propertyName: 'solar under construction'
+          },
+          {
+            name: 'Wind Completed',
+            color : '#00c5ff',
+            propertyName: 'wind completed'
+          },
+          {
+            name: 'Wind Under Construction',
+            color : '#00c5ff',
+            propertyName: 'wind under construction'
+          }
+        ],
         active: false,
         included: true,
         iconPath: 'assets/plans/oahu/images/icons/existing_re-icon.png',
@@ -273,43 +340,71 @@ export const OahuPlan: Plan = {
       //     });
       //   },
       // },
-      // {
-      //   name: 'agriculture',
-      //   displayName: 'Ag Lands',
-      //   active: false,
-      //   included: true,
-      //   iconPath: 'assets/plans/oahu/images/icons/agriculture-icon.png',
-      //   secondScreenImagePath: 'assets/plans/oahu/images/second-screen-images/layer-images/agriculture.jpg',
-      //   secondScreenText: 'This layer shows the Land Study Bureau’s Overall Productivity Rating (LSB) for agricultural lands. The ratings of the land move from Class A (most productive) to Class E (least productive). ',
-      //   fillColor: mapLayerColors.Agriculture.fill,
-      //   borderColor: mapLayerColors.Agriculture.border,
-      //   borderWidth: 0.25,
-      //   legendColor: mapLayerColors.Agriculture.fill,
-      //   filePath: 'assets/plans/oahu/layers/lsb2.json',
-      //   parcels: [],
-      //   setupFunction(planService: PlanService) {
-      //     const colors = {
-      //       'A': '#7de87d',
-      //       'B': '#2edd2e',
-      //       'C': '#00d100',
-      //       'D': '#009300',
-      //       'E': '#005400',
-      //     };
-      //     this.parcels.forEach(parcel => {
-      //       d3.select(parcel.path)
-      //         .style('fill', colors[parcel.properties.type])
-      //         .style('opacity', this.active ? 0.85 : 0.0)
-      //         .style('stroke', this.borderColor)
-      //         .style('stroke-width', this.borderWidth + 'px');
-      //     });
-      //   },
-      //   updateFunction(planService: PlanService) {
-      //     this.parcels.forEach(parcel => {
-      //       d3.select(parcel.path)
-      //         .style('opacity', this.active ? 0.85 : 0.0);
-      //     });
-      //   },
-      // },
+      {
+        name: 'agriculture',
+        displayName: 'Agriculture',
+        description: 'Agriculture Description',
+        legendItems: [
+          {
+            name: 'Category A',
+            color : '#7de87d',
+            propertyName: 'A'
+          },
+          {
+            name: 'Category B',
+            color : '#2edd2e',
+            propertyName: 'B'
+          },
+          {
+            name: 'Category C',
+            color : '#00d100',
+            propertyName: 'C'
+          },
+          {
+            name: 'Category D',
+            color : '#009300',
+            propertyName: 'D'
+          },
+          {
+            name: 'Category E',
+            color : '#005400',
+            propertyName: 'E'
+          }
+        ],
+        active: false,
+        included: true,
+        iconPath: 'assets/plans/oahu/images/icons/agriculture-icon.png',
+        secondScreenImagePath: 'assets/plans/oahu/images/second-screen-images/layer-images/agriculture.jpg',
+        secondScreenText: 'This layer shows the Land Study Bureau’s Overall Productivity Rating (LSB) for agricultural lands. The ratings of the land move from Class A (most productive) to Class E (least productive). ',
+        fillColor: mapLayerColors.Agriculture.fill,
+        borderColor: mapLayerColors.Agriculture.border,
+        borderWidth: 0.25,
+        legendColor: mapLayerColors.Agriculture.fill,
+        filePath: 'assets/plans/oahu/layers/lsb2.json',
+        parcels: [],
+        setupFunction(planService: PlanService) {
+          const colors = {
+            'A': '#7de87d',
+            'B': '#2edd2e',
+            'C': '#00d100',
+            'D': '#009300',
+            'E': '#005400',
+          };
+          this.parcels.forEach(parcel => {
+            d3.select(parcel.path)
+              .style('fill', colors[parcel.properties.type])
+              .style('opacity', this.active ? 0.85 : 0.0)
+              .style('stroke', this.borderColor)
+              .style('stroke-width', this.borderWidth + 'px');
+          });
+        },
+        updateFunction(planService: PlanService) {
+          this.parcels.forEach(parcel => {
+            d3.select(parcel.path)
+              .style('opacity', this.active ? 0.85 : 0.0);
+          });
+        },
+      },
       // {
       //   name: 'ial',
       //   displayName: 'IAL',

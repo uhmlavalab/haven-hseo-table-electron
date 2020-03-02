@@ -6,7 +6,7 @@ import { Component, OnInit } from '@angular/core';
   styleUrls: ['./secondscreen-plan-selection.component.css']
 })
 export class SecondscreenPlanSelectionComponent implements OnInit {
-
+  text = 'Island Selection';
   constructor() { }
 
   ngOnInit(): void {

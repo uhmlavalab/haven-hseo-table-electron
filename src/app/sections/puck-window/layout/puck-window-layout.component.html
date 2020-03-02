@@ -1,23 +1,15 @@
-<router-outlet></router-outlet>
+
+
+
 
 <div class="button-list">
-  <button style="margin: 0.25rem; width: 8rem;" (click)="shiftLeft()">Puck Window Left</button>
-  <br>
-  <button style=" margin: 0.25rem; width: 8rem;" (click)="shiftRight()">Puck Window Right</button>
-  <br>
-  <button style="margin: 0.25rem; width: 8rem;" (click)="left()">Left</button>
-  <br>
-  <button style=" margin: 0.25rem; width: 8rem;" (click)="right()">Right</button>
-  <br>
-  <button style=" margin: 0.25rem; width: 8rem;" (click)="calibration()">Calibration</button>
-  <br>
-  <button style=" margin: 0.25rem; width: 8rem;" (click)="mainView()">Main View</button>
-  <br>
-  <button style=" margin: 0.25rem; width: 8rem;" (click)="planSelection()">Plan Selection</button>
-  <br>
-  <button style=" margin: 0.25rem; width: 8rem;" (click)="mainMenu()">Main Menu</button>
-  <br>
-  <button style=" margin: 0.25rem; width: 8rem;" (click)="restart()">Restart</button>
+  <button  (click)="shiftLeft()">Left</button>
+  <button  (click)="shiftRight()">Right</button>
+  <button  (click)="mainMenu()">Main</button>
+  <button  (click)="restart()">Restart</button>
+  <button  (click)="exit()">Exit</button>
 </div>
+
+<router-outlet></router-outlet>
 
 <div class="right-edge"></div>

@@ -1,4 +1,5 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, Input, OnChanges, SimpleChanges } from '@angular/core';
+import { MapLayer } from '@app/core';
 
 export interface LegendItem  {
   name: string;
@@ -10,33 +11,20 @@ export interface LegendItem  {
   templateUrl: './layer-info.component.html',
   styleUrls: ['./layer-info.component.css']
 })
-export class LayerInfoComponent implements OnInit {
+export class LayerInfoComponent implements OnInit, OnChanges {
 
-  legendItems: LegendItem[] = 
-  [
-    {
-      name: 'Level 4',
-      color: 'darkgreen'
-    },
-    {
-      name: 'Level 3',
-      color: 'green'
-    },
-    {
-      name: 'Level 2',
-      color: 'lightgreen'
-    },
-    {
-      name: 'Level 1',
-      color: 'lime'
-    }
-  ]
-
+  @Input() mapLayer: MapLayer;
   layerName = 'Agriculture';
 
   constructor() { }
 
   ngOnInit(): void {
+  }
+
+  ngOnChanges(changes: SimpleChanges) {
+    if(changes.mapLayer) {
+      this.mapLayer = changes.mapLayer.currentValue;
+    }
   }
 
 }

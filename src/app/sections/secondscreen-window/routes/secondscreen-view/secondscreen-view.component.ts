@@ -1,6 +1,6 @@
-import { Component, OnInit, ViewChild, ChangeDetectorRef } from '@angular/core';
+import { Component, AfterViewInit, ViewChild, ChangeDetectorRef, ElementRef } from '@angular/core';
 import { MapElementComponent } from 'src/app/modules/maps';
-import { PlanService } from '@app/core';
+import { PlanService, MapLayer, ElementSize, ElementPosition, Scenario, ElectronService } from '@app/core';
 import { PieChartComponent, LineChartComponent, ChartData } from '@app/charts';
 
 @Component({
@@ -8,102 +8,98 @@ import { PieChartComponent, LineChartComponent, ChartData } from '@app/charts';
   templateUrl: './secondscreen-view.component.html',
   styleUrls: ['./secondscreen-view.component.css']
 })
-export class SecondscreenViewComponent implements OnInit {
+export class SecondscreenViewComponent implements AfterViewInit {
 
   year: number;
-  scenario: number;
-  layer: number;
+  scenario: Scenario;
+  layer: MapLayer;
 
-  @ViewChild('map' , {static: false}) map: MapElementComponent;
-  mapWidth = 1300;
-  mapBounds = [[-158.281, 21.710], [-157.647, 21.252]];
-  baseImageURL = 'assets/plans/oahu/images/oahu-satellite5.png';
+  planName: string = 'oahu';
+  planLayers: MapLayer[];
+  
+  @ViewChild('map', { static: false }) map: MapElementComponent;
+  @ViewChild('map', { static: false, read: ElementRef }) mapDiv: ElementRef;
+  mapPosition: ElementPosition;
+  mapSize: ElementSize;
+  mapBounds: [[number, number], [number, number]];
+  baseImageURL: string;
 
-  @ViewChild('lineChart' , {static: false}) lineChart: LineChartComponent;
-  lineWidth = 750;
-  lineHeight = 650;
-  lineFontSize = 24;
-  lineTitle = "Generation";
-  lineLegend = false;
+  constructor(private planService: PlanService, private detectorRef: ChangeDetectorRef, private electronService: ElectronService) {
+    this.scenario = this.planService.getCurrentScenario();
+    this.layer = this.planService.getCurrentLayer();
+    this.year = this.planService.getCurrentYear();
+    this.baseImageURL = this.planService.getBaseImagePath();
+    this.planLayers = this.planService.getMapLayers();
+    this.mapBounds = this.planService.getMapBounds();
+    this.mapSize = {width: 1400, height: 1400};
 
-  pieData: ChartData = {
-    datasets: [
-      {
-        name: 'A',
-        color: 'red',
-        data: [
-          {
-            x: 2001,
-            y: 6
-          }, {
-            x: 2002,
-            y: 4
-          },
-          {
-            x: 2003,
-            y: 1
-          },
-        ]
-      },
-      {
-        name: 'B',
-        color: 'green',
-        data: [
-          {
-            x: 2001,
-            y: 3
-          }, {
-            x: 2002,
-            y: 1
-          },
-          {
-            x: 2003,
-            y: 2
-          },
-        ]
-      },
-      {
-        name: 'C',
-        color: 'blue',
-        data: [
-          {
-            x: 2001,
-            y: 10
-          }, {
-            x: 2002,
-            y: 1
-          },
-          {
-            x: 2003,
-            y: 8
-          },
-        ]
-      },
-
-    ]
+    this.mapPosition = this.electronService.getSecondScreenMapPosition(this.planName);
+    this.mapSize = this.electronService.getSecondScreenMapSize(this.planName);
   }
 
-  constructor(private planService: PlanService, private detectorRef: ChangeDetectorRef) {
+  ngAfterViewInit(): void {
 
-  }
+    this.positionMap(this.mapPosition);
+    this.sizeMap(this.mapSize);
 
-  ngOnInit(): void {
+    this.mapDiv.nativeElement.addEventListener("wheel", (event) => {
+      const resize = (event.deltaY > 0) ? 4 : -4;
+      this.mapResize(resize);
+    });
+
     this.planService.currentYearSub.subscribe(year => {
       this.year = year;
+      this.updateYear(year)
       this.detectorRef.detectChanges();
     });
 
-    // this.planService.currentScenarioSub.subscribe(scenario => {
-    //   this.scenario = scenario;
-    //   this.detectorRef.detectChanges();
-    // });
+    this.planService.currentScenarioSub.subscribe(scenario => {
+      this.scenario = scenario;
+      this.changeData();
+      this.detectorRef.detectChanges();
+    });
 
-    // this.planService.currentLayerSub.subscribe(layer => {
-    //   this.layer = layer;
-    //   this.detectorRef.detectChanges();
-    // });
+    this.planService.currentLayerSub.subscribe(layer => {
+      this.layer = layer;
+      console.log('layer');
+      this.map.updateLayers();
+      this.detectorRef.detectChanges();
+    });
   }
 
+  updateYear(year: number) {
+    if (this.map) {
+      this.map.updateLayers();
+    }
+  }
+
+  changeData() {
   
+  }
+
+  onMapDragEnd(event: any) {
+    this.mapPosition.x = this.mapDiv.nativeElement.getBoundingClientRect().left;
+    this.mapPosition.y = this.mapDiv.nativeElement.getBoundingClientRect().top;
+    this.electronService.setSecondScreenMapPosition(this.planName, this.mapPosition);
+  }
+
+  positionMap(position: ElementPosition) {
+    this.mapDiv.nativeElement.style.left = position.x + 'px';
+    this.mapDiv.nativeElement.style.top = position.y + 'px';
+  }
+
+  sizeMap(size: ElementSize) {
+    this.mapSize = size;
+  }
+
+  mapResize(resize: number) {
+    const width = this.mapSize.width + resize;
+    const height = this.mapSize.height + resize;
+    this.mapSize = { width, height };
+    this.electronService.setSecondScreenMapSize(this.planName, this.mapSize);
+  }
+
+
+
 
 }

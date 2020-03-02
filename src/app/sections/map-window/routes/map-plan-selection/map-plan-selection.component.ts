@@ -1,5 +1,5 @@
 import { Component, ChangeDetectorRef } from '@angular/core';
-import { AppRoutes, ElectronService, PlanService, Plan } from '@app/core';
+import { AppRoutes, ElectronService, PlanService, Plan, AppInput } from '@app/core';
 import { InputService } from '@app/input'
 import { Subscription } from 'rxjs';
 
@@ -27,12 +27,7 @@ export class MapPlanSelectionComponent {
 
   electronMessageSub: Subscription;
 
-  constructor(private electronService: ElectronService, private planService: PlanService, private detectorRef: ChangeDetectorRef, private inputService: InputService) {
-    this.inputService.deregisterAllKeyboardEvents();
-
-    this.inputService.registerKeyboardEvent({ keyname: 'ArrowLeft', eventFunction: () => this.shiftSelectionLeft() });
-    this.inputService.registerKeyboardEvent({ keyname: 'ArrowRight', eventFunction: () => this.shiftSelectionRight() });
-    this.inputService.registerKeyboardEvent({ keyname: 'Enter', eventFunction: () => this.selectOption() });
+  constructor(private electronService: ElectronService, private planService: PlanService, private detectorRef: ChangeDetectorRef) {
 
     this.planService.getPlans().forEach(el => {
       this.menuOptions.push({
@@ -42,9 +37,7 @@ export class MapPlanSelectionComponent {
         route: AppRoutes.view,
         background: `url(${el.landingImagePath})`,
         click: () => {
-          this.planService.loadPlan(el).then(() => {
-            this.routeToView();
-          })
+          this.electronService.loadPlan(el.name);
         }
       })
     })
@@ -59,8 +52,30 @@ export class MapPlanSelectionComponent {
     })
 
     this.menuOptions[0].selected = true;
+    this.electronMessageSub = this.electronService.windowMessageSubject.subscribe(value => {
+      if (value.type == 'input') {
+        this.processInput(value.input);
+      }
+    })
   }
 
+  ngOnDestroy() {
+    this.electronMessageSub.unsubscribe();
+  }
+
+  processInput(input: AppInput) {
+    switch (input) {
+      case AppInput.left:
+        this.shiftSelectionLeft();
+        break;
+      case AppInput.right:
+        this.shiftSelectionRight();
+        break;
+      case AppInput.enter:
+        this.selectOption();
+        break;
+    }
+  }
 
   shiftSelectionRight() {
     this.menuOptions[this.menuOptionSelected].selected = false;

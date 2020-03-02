@@ -3,6 +3,8 @@ import { PlanService } from '@app/core';
 export interface MapLayer {
   name: string;
   displayName: string;
+  description: string;
+  legendItems: LegendItem[];
   filePath: string;
   iconPath: string;
   secondScreenImagePath: string;
@@ -21,4 +23,10 @@ export interface MapLayer {
 export interface Parcel {
   path: any;
   properties: any;
+}
+
+export interface LegendItem {
+  name: string;
+  propertyName: string;
+  color: string;
 }

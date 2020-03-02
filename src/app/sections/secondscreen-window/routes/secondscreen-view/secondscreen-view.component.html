@@ -1,8 +1,6 @@
-<app-map-element #map [width]="mapWidth" [baseImage]="baseImageURL" [bounds]="mapBounds"></app-map-element>
+<app-map-element cdkDrag (cdkDragReleased)="onMapDragEnd($event)" #map [mapLayers]="planLayers" [planService]="planService" [size]="mapSize" [baseImage]="baseImageURL"
+  [bounds]="mapBounds"></app-map-element>
 
-<app-line-chart #lineChart [title]="lineTitle" [legend]="lineLegend" [fontSize]="lineFontSize" [height]="lineHeight" [width]="lineWidth"
-  [data]="pieData"></app-line-chart>
+<app-layer-info [mapLayer]="layer"></app-layer-info>
 
-<app-layer-info></app-layer-info>
-
-<app-layer-list></app-layer-list>
+<app-layer-list [layers]="planLayers" [selectedLayer]="layer"></app-layer-list>

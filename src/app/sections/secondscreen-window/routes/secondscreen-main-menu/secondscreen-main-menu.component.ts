@@ -7,6 +7,7 @@ import { Component, OnInit } from '@angular/core';
 })
 export class SecondscreenMainMenuComponent implements OnInit {
 
+  text = 'Main Menu';
   constructor() { }
 
   ngOnInit(): void {

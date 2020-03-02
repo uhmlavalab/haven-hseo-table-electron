@@ -59,7 +59,6 @@ export class PlanService {
     }
     return new Promise(resolve => {
       this.loadedPlan = selectedPlan;
-      this.electronService.sendMessage({ type: StateUpdateType.loadplan, plan: this.loadedPlan.name });
       this.setYear(this.loadedPlan.minYear);
       this.setScenario(0);
       this.setLayer(0);
@@ -67,7 +66,6 @@ export class PlanService {
       const capPromise = this.loadCapacityData();
       const curPromise = this.loadCurtailmentData();
       return Promise.all([curPromise, genPromise, capPromise]).then(done => {
-        console.log('finished');
         return resolve(true);
       })
     })
@@ -85,7 +83,7 @@ export class PlanService {
         this.setLayer(msg.layer);
         break;
       case StateUpdateType.layertoggle:
-        this.toggleLayer(msg.layer);
+        this.toggleLayerMessage();
         break;
       case StateUpdateType.loadplan:
         this.loadPlan(msg.plan);
@@ -116,14 +114,25 @@ export class PlanService {
     this.currentLayer--;
     if (this.currentLayer < 0) this.currentLayer = this.loadedPlan.map.mapLayers.length - 1;
     this.setLayer(this.currentLayer);
-    this.electronService.sendMessage({ type: 'layerselection', layer: this.currentLayer })
+    this.electronService.sendMessage({ type: StateUpdateType.layerselection, layer: this.currentLayer })
   }
 
   public incrementNextLayer() {
     this.currentLayer++;
     if (this.currentLayer >= this.loadedPlan.map.mapLayers.length) this.currentLayer = 0;
     this.setLayer(this.currentLayer);
-    this.electronService.sendMessage({ type: 'layerselection', layer: this.currentLayer })
+    this.electronService.sendMessage({ type: StateUpdateType.layerselection, layer: this.currentLayer })
+  }
+
+  public toggleLayer() {
+    this.loadedPlan.map.mapLayers[this.currentLayer].active = !this.loadedPlan.map.mapLayers[this.currentLayer].active;
+    this.setLayer(this.currentLayer);
+    this.electronService.sendMessage({ type: StateUpdateType.layertoggle, layer: this.currentLayer })
+  }
+
+  public toggleLayerMessage() {
+    this.loadedPlan.map.mapLayers[this.currentLayer].active = !this.loadedPlan.map.mapLayers[this.currentLayer].active;
+    this.currentLayerSub.next(this.loadedPlan.map.mapLayers[this.currentLayer]);
   }
 
   private setLayer(layer: number) {
@@ -131,17 +140,11 @@ export class PlanService {
     this.currentLayerSub.next(this.loadedPlan.map.mapLayers[this.currentLayer]);
   }
 
-  public toggleLayer(active: boolean) {
-    this.loadedPlan.map.mapLayers[this.currentLayer].active = active;
-    this.currentLayerSub.next(this.loadedPlan.map.mapLayers[this.currentLayer]);
-
-  }
-
   public decrementScenario() {
     this.currentScenario--;
     if (this.currentScenario < 0) this.currentScenario = this.loadedPlan.scenarios.length - 1;
     this.setScenario(this.currentScenario);
-    this.electronService.sendMessage({ type: 'scenario', scenario: this.currentScenario })
+    this.electronService.sendMessage({ type: StateUpdateType.scenario, scenario: this.currentScenario })
   }
 
   public incrementScenario() {
@@ -149,7 +152,7 @@ export class PlanService {
     if (this.currentScenario >= this.loadedPlan.scenarios.length) this.currentScenario = 0;
 
     this.setScenario(this.currentScenario);
-    this.electronService.sendMessage({ type: 'scenario', scenario: this.currentScenario })
+    this.electronService.sendMessage({ type: StateUpdateType.scenario, scenario: this.currentScenario })
   }
 
   private setScenario(scenario: number) {
@@ -248,5 +251,9 @@ export class PlanService {
 
   public getMapLayers(): MapLayer[] {
     return this.loadedPlan.map.mapLayers;
+  }
+
+  public getMapBounds(): [[number, number], [number, number]] {
+    return this.loadedPlan.map.bounds;
   }
 }

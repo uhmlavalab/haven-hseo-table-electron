@@ -4,7 +4,8 @@ import { CommonModule } from '@angular/common';
 // Modules
 import { MapsModule } from '@app/maps';
 import { ChartsModule } from '@app/charts';
-import { SharedModule } from '@app/shared';
+import { SharedModule } from '@app/shared'; 
+import { DragDropModule } from '@angular/cdk/drag-drop';
 
 // Layout
 import { SecondscreenWindowLayoutComponent } from './layout/secondscreen-window-layout.component';
@@ -35,7 +36,8 @@ import { LayerListComponent } from './components/layer-list/layer-list.component
     SecondScreenWindowRoutingModule,
     MapsModule,
     ChartsModule,
-    SharedModule
+    SharedModule,
+    DragDropModule
   ]
 })
 export class SecondScreenWindowModule { }

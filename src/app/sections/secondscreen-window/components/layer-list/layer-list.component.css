@@ -13,10 +13,10 @@
 }
 
 .layer-title {
-  transform: translateY(-20px);
+  transform: translateY(-45px);
   font-size: 18px;
   font-weight:  bold;
-  line-height: 0;
+  line-height: 18px;
 }
 
 .layer-icon {
