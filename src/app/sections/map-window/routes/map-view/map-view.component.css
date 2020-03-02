@@ -9,3 +9,12 @@ app-line-chart {
 app-map-element {
   position: absolute;
 }
+
+.textLabel {
+  position: absolute;
+  text-align: center;
+}
+
+.textLabel>p {
+  margin: 4px;
+}

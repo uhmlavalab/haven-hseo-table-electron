@@ -1,6 +1,6 @@
-<div cdkDrag (cdkDragReleased)="onLabelDragEnd($event)" #textLabel>
+<div cdkDrag (cdkDragReleased)="onLabelDragEnd($event)" #textLabel class="textLabel">
   <p>{{ year }}</p>
-  <p>{{ scenario.name }}</p>
+  <p>{{ scenario.name.toUpperCase() }}</p>
 </div>
 
 

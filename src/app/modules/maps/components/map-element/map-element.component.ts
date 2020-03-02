@@ -52,6 +52,7 @@ export class MapElementComponent implements OnInit {
   
 
     this.mapLayers.forEach(mapLayer => {
+      mapLayer.active = true;
       d3.json(mapLayer.filePath, (error, geoData) => {
         const bounds = [this.projection(this.bounds[0]), this.projection(this.bounds[1])];
         const scale = 1 / Math.max((bounds[1][0] - bounds[0][0]) / this.size.width, (bounds[1][1] - bounds[0][1]) / this.size.height);
@@ -76,10 +77,11 @@ export class MapElementComponent implements OnInit {
           .each(function (d) {
             mapLayer.parcels.push({ path: this, properties: (d.hasOwnProperty(`properties`)) ? d[`properties`] : null } as Parcel);
           }).call(() => {
+            console.log(mapLayer.parcels);
             if (mapLayer.setupFunction !== null) {
               mapLayer.setupFunction(this.planService);
             } else {
-              this.defaultFill(mapLayer, mapLayer.fillColor);
+              this.defaultFill(mapLayer);
             }
           });
       });
@@ -124,11 +126,11 @@ export class MapElementComponent implements OnInit {
     this.map.selectAll('path').attr('d', path);
   }
 
-  defaultFill(layer: any, color: string) {
+  defaultFill(layer: MapLayer) {
     layer.parcels.forEach(el => {
       d3.select(el.path)
-        .style('fill', color)
-        .style('opacity', true ? 0.85 : 0.0)
+        .style('fill', layer.fillColor)
+        .style('opacity', layer.active ? 0.85 : 0.0)
         .style('stroke', 'white')
         .style('stroke-width', 1 + 'px');
     });

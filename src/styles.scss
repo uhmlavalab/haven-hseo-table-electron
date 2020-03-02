@@ -1,13 +1,15 @@
 /* You can add global styles to this file, and also import other style files */
+@font-face {
+  font-family: 'roboto';
+  src: url('./assets/fonts/Roboto-Regular.ttf');
+}
 html, body {
   margin: 0;
   padding: 0;
-
   height: 100%;
-
   background-color: black;
   color: white;
-  font-family: 'Roboto', sans-serif;
+  font-family: 'roboto', sans-serif;
   overflow: hidden;
 }
 

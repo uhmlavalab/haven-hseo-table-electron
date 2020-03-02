@@ -21,7 +21,7 @@ export class MapPlanSelectionComponent {
 
   menuOptions: MenuOption[] = [];
 
-  title = 'Main Menu';
+  title = 'Island Selection';
 
   menuOptionSelected = 0;
 

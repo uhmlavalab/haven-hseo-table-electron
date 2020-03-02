@@ -77,6 +77,7 @@ export class MapViewComponent implements AfterViewInit {
 
     this.textLabelPosition = this.electronService.getMapScreenTextLabelPosition(this.planName);
     this.textLabelSize = this.electronService.getMapScreenTextLabelSize(this.planName);
+    console.log(this.textLabelPosition);
 
   }
 
@@ -201,6 +202,7 @@ export class MapViewComponent implements AfterViewInit {
     this.textLabel.nativeElement.style.left = position.x + 'px';
     this.textLabel.nativeElement.style.top = position.y  + 'px'; 
   }
+
   sizeTextLabel(size: number) {
     this.textLabel.nativeElement.style.fontSize = size + 'px'; 
   }

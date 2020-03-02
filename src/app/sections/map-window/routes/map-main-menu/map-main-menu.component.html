@@ -1,5 +1,8 @@
 <div class="title">{{ title }}</div>
 
 <div class="grid-container">
-  <div class="grid-item" *ngFor="let option of menuOptions" [style.borderColor]="option.selected ? '#00D2FF' : 'white'" [style.color]="option.selected ? '#00D2FF' : 'white'" (click)="option.click()"> {{ option.name }} </div>
+  <div class="grid-item" *ngFor="let option of menuOptions" 
+  [style.borderColor]="option.selected ? '#00D2FF' : 'white'" 
+  [style.borderWidth]="option.selected ? '12px' : '6px'" 
+  [style.color]="option.selected ? '#00D2FF' : 'white'" (click)="option.click()"> {{ option.name }} </div>
 </div>
