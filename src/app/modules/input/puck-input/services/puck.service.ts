@@ -62,10 +62,6 @@ export class PuckService {
 
 
     this.trackingIsSet = true; // Tracking is always set.
-
-
-
-
   }
 
   // Add A Marker to the array of markers
@@ -93,7 +89,8 @@ export class PuckService {
 
     /* Holds the raw aruco marker data from each camera */
     const tempMarkerData = [];
-
+    if (this.videoFeedArray.length == 0) return;
+    
     this.videoFeedArray.forEach(videoFeed => {
       if (videoFeed.video.readyState === videoFeed.video.HAVE_ENOUGH_DATA) {
 
