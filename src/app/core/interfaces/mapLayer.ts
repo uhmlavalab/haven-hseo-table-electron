@@ -1,4 +1,4 @@
-import { PlanService } from '@app/core';
+import { PlanStateService } from '../services/plan-state.service';
 
 export interface MapLayer {
   name: string;
@@ -16,8 +16,8 @@ export interface MapLayer {
   borderWidth: number;
   legendColor: string;
   parcels: Parcel[];
-  setupFunction(planService: PlanService): any | null;
-  updateFunction(planService: PlanService): any | null;
+  setupFunction(planService: PlanStateService): any | null;
+  updateFunction(planService: PlanStateService): any | null;
 }
 
 export interface Parcel {

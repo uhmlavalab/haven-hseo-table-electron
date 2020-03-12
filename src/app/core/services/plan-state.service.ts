@@ -1,5 +1,4 @@
 import { Injectable } from '@angular/core';
-import { ElectronService } from './electron.service';
 import { BehaviorSubject } from 'rxjs';
 import { MapLayer } from '../interfaces/mapLayer';
 import { Scenario } from '../interfaces/scenario';
@@ -9,45 +8,74 @@ import { Plans } from '../../../assets/plans/plans';
 
 import { Papa } from 'ngx-papaparse';
 import { HttpClient } from '@angular/common/http';
-import { ChartData } from 'src/app/modules/charts';
+import { ChartData } from '@app/charts';
+
+import { ipcRenderer } from 'electron';
+import { WindowService, AppRoutes } from './window.service';
 
 export enum StateUpdateType {
   year = 'year',
   layerselection = 'layerselection',
   layertoggle = 'layertoggle',
   scenario = 'scenario',
-  loadplan = 'loadplan'
+  loadplan = 'loadplan',
+  zoomcenter = 'zoomcenter',
+  zoomzoom = 'zoomzoom'
+}
+
+export interface StateUpdate {
+  type: StateUpdateType,
+  value: any;
+}
+
+export interface PapaCsv {
+  data: [],
+  errors: [],
+  meta: {}
 }
 
 @Injectable({
   providedIn: 'root'
 })
-export class PlanService {
+export class PlanStateService {
 
   private loadedPlan: Plan;
 
-  private currentYear = 2016;
+  private currentYear: number;
+  private minYear: number;
+  private maxYear: number;
   public currentYearSub = new BehaviorSubject<number>(this.currentYear);
 
-  private currentScenario = 0;
+  private currentScenario: Scenario;
+  private scenarios: Scenario[];
   public currentScenarioSub = new BehaviorSubject<Scenario>(null);
 
-  private currentLayer = 0;
+  private currentLayer: MapLayer;
+  private layers: MapLayer[];
   public currentLayerSub = new BehaviorSubject<MapLayer>(null);
 
-  private generationData: {data: [], errors: [], meta: {}};
-  private capacityData: {data: [], errors: [], meta: {}};
-  private curtailmentData: {data: [], errors: [], meta: {}};
-  private derData: {data: [], errors: [], meta: {}};
+  private generationData: PapaCsv;
+  private capacityData: PapaCsv;
+  private curtailmentData: PapaCsv;
+  private derData: PapaCsv;
 
-  constructor(private electronService: ElectronService, private papa: Papa, private http: HttpClient) {
-    this.electronService.windowMessageSubject.subscribe(message => {
+  private zoomCenter: [number, number];
+  private zoomZoom: number;
+  public zoomCenterSub = new BehaviorSubject<[number, number]>(null);
+  public zoomZoomSub = new BehaviorSubject<number>(null);
+
+  constructor(private papa: Papa, private http: HttpClient, private windowService: WindowService) {
+    ipcRenderer.on('state-message', (event, message) => {
       this.processMessage(message);
-    })
+    });
   }
 
   getPlans(): Plan[] {
     return Plans;
+  }
+
+  changePlan(planName: string) {
+    this.stateUpdate({ type: StateUpdateType.loadplan, value: planName })
   }
 
   loadPlan(plan: Plan | string): Promise<any> {
@@ -59,50 +87,71 @@ export class PlanService {
     }
     return new Promise(resolve => {
       this.loadedPlan = selectedPlan;
+      this.scenarios = this.loadedPlan.scenarios;
+      this.currentScenario = this.scenarios[0];
+      this.layers = this.loadedPlan.map.mapLayers;
+      this.currentLayer = this.layers[0];
       this.setYear(this.loadedPlan.minYear);
-      this.setScenario(0);
-      this.setLayer(0);
+      this.setScenario(this.currentScenario);
+      this.setLayer(this.currentLayer);
       const genPromise = this.loadGenerationData();
       const capPromise = this.loadCapacityData();
       const curPromise = this.loadCurtailmentData();
       return Promise.all([curPromise, genPromise, capPromise]).then(done => {
+        this.windowService.rerouteApp(AppRoutes.view)
         return resolve(true);
       })
     })
   }
 
-  public processMessage(msg) {
+
+
+  public processMessage(msg: StateUpdate) {
     switch (msg.type) {
       case StateUpdateType.year:
-        this.setYear(msg.year);
+        this.setYear(msg.value);
         break;
       case StateUpdateType.scenario:
-        this.setScenario(msg.scenario);
+        this.setScenario(msg.value);
         break;
       case StateUpdateType.layerselection:
-        this.setLayer(msg.layer);
+        this.setLayer(msg.value);
         break;
       case StateUpdateType.layertoggle:
-        this.toggleLayerMessage();
+        this.updateLayer(msg.value);
         break;
       case StateUpdateType.loadplan:
-        this.loadPlan(msg.plan);
+        this.loadPlan(msg.value);
+        break;
+      case StateUpdateType.zoomcenter:
+        this.setZoomCenter(msg.value);
+        break;
+      case StateUpdateType.zoomzoom:
+        this.setZoomZoom(msg.value);
         break;
     }
+  }
+
+  public getPlanName(): string {
+    return this.loadedPlan.name;
+  }
+
+  private stateUpdate(update: StateUpdate) {
+    console.log(update);
+
+    ipcRenderer.send('state-message', update);
   }
 
   public decrementCurrentYear() {
     this.currentYear--;
     if (this.currentYear < this.loadedPlan.minYear) this.currentYear = this.loadedPlan.maxYear;
-    this.setYear(this.currentYear);
-    this.electronService.sendMessage({ type: 'year', year: this.currentYear })
+    this.stateUpdate({ type: StateUpdateType.year, value: this.currentYear });
   }
 
   public incrementCurrentYear() {
     this.currentYear++;
     if (this.currentYear > this.loadedPlan.maxYear) this.currentYear = this.loadedPlan.minYear;
-    this.setYear(this.currentYear);
-    this.electronService.sendMessage({ type: 'year', year: this.currentYear })
+    this.stateUpdate({ type: StateUpdateType.year, value: this.currentYear });
   }
 
   private setYear(year: number) {
@@ -110,54 +159,61 @@ export class PlanService {
     this.currentYearSub.next(this.currentYear);
   }
 
+
   public decrementNextLayer() {
-    this.currentLayer--;
-    if (this.currentLayer < 0) this.currentLayer = this.loadedPlan.map.mapLayers.length - 1;
-    this.setLayer(this.currentLayer);
-    this.electronService.sendMessage({ type: StateUpdateType.layerselection, layer: this.currentLayer })
+    let currIdx = this.layers.findIndex(el => el.name === this.currentLayer.name);
+    currIdx -= 1;
+    if (currIdx < 0) currIdx = this.layers.length - 1;
+    this.currentLayer = this.layers[currIdx];
+    this.stateUpdate({ type: StateUpdateType.layerselection, value: this.currentLayer });
   }
 
   public incrementNextLayer() {
-    this.currentLayer++;
-    if (this.currentLayer >= this.loadedPlan.map.mapLayers.length) this.currentLayer = 0;
-    this.setLayer(this.currentLayer);
-    this.electronService.sendMessage({ type: StateUpdateType.layerselection, layer: this.currentLayer })
+    let currIdx = this.layers.findIndex(el => el.name === this.currentLayer.name);
+    currIdx++;
+    if (currIdx >= this.layers.length) currIdx = 0;
+    this.currentLayer = this.layers[currIdx];
+    this.stateUpdate({ type: StateUpdateType.layerselection, value: this.currentLayer });
   }
 
-  public toggleLayer() {
-    this.loadedPlan.map.mapLayers[this.currentLayer].active = !this.loadedPlan.map.mapLayers[this.currentLayer].active;
-    this.setLayer(this.currentLayer);
-    this.electronService.sendMessage({ type: StateUpdateType.layertoggle, layer: this.currentLayer })
+  public toggleLayer(layer: MapLayer) {
+    this.currentLayer = this.layers.find(el => el.name === layer.name);
+    if (this.currentLayer) {
+      this.currentLayer.active = !this.currentLayer.active;
+      this.stateUpdate({ type: StateUpdateType.layertoggle, value: this.currentLayer });
+    }
   }
 
-  public toggleLayerMessage() {
-    this.loadedPlan.map.mapLayers[this.currentLayer].active = !this.loadedPlan.map.mapLayers[this.currentLayer].active;
-    this.currentLayerSub.next(this.loadedPlan.map.mapLayers[this.currentLayer]);
+  public updateLayer(layer: MapLayer) {
+    this.currentLayerSub.next(layer);
   }
 
-  private setLayer(layer: number) {
-    this.currentLayer = layer;
-    this.currentLayerSub.next(this.loadedPlan.map.mapLayers[this.currentLayer]);
+  private setLayer(layer: MapLayer) {
+    this.currentLayer = this.layers.find(el => el.name === layer.name);
+    if (this.currentLayer) {
+      this.currentLayerSub.next(this.currentLayer);
+    }
   }
 
-  public decrementScenario() {
-    this.currentScenario--;
-    if (this.currentScenario < 0) this.currentScenario = this.loadedPlan.scenarios.length - 1;
-    this.setScenario(this.currentScenario);
-    this.electronService.sendMessage({ type: StateUpdateType.scenario, scenario: this.currentScenario })
+  public previousScenario() {
+    let currIdx = this.scenarios.findIndex(el => el.name === this.currentScenario.name);
+    currIdx -= 1;
+    if (currIdx < 0) currIdx = this.layers.length - 1;
+    this.currentScenario = this.scenarios[currIdx];
+    this.stateUpdate({ type: StateUpdateType.scenario, value: this.currentScenario });
   }
 
-  public incrementScenario() {
-    this.currentScenario++;
-    if (this.currentScenario >= this.loadedPlan.scenarios.length) this.currentScenario = 0;
-
-    this.setScenario(this.currentScenario);
-    this.electronService.sendMessage({ type: StateUpdateType.scenario, scenario: this.currentScenario })
+  public nextScenario() {
+    let currIdx = this.scenarios.findIndex(el => el.name === this.currentScenario.name);
+    currIdx++;
+    if (currIdx >= this.layers.length) currIdx = 0;
+    this.currentScenario = this.scenarios[currIdx];
+    this.stateUpdate({ type: StateUpdateType.scenario, value: this.currentScenario });
   }
 
-  private setScenario(scenario: number) {
-    this.currentScenario = scenario;
-    this.currentScenarioSub.next(this.loadedPlan.scenarios[this.currentScenario]);
+  private setScenario(scenario: Scenario) {
+    this.currentScenario = this.scenarios.find(el => el.name === scenario.name);
+    this.currentScenarioSub.next(this.currentScenario);
   }
 
 
@@ -181,11 +237,11 @@ export class PlanService {
   }
 
   public getCurrentScenario(): Scenario {
-    return this.loadedPlan.scenarios[this.currentScenario];
+    return this.currentScenario;
   }
 
   public getCurrentLayer(): MapLayer {
-    return this.loadedPlan.map.mapLayers[this.currentLayer];
+    return this.currentLayer;
   }
 
   private loadGenerationData(): Promise<any> {
@@ -223,11 +279,11 @@ export class PlanService {
 
   // technology,year,scenario,value
   public getCapacityData(): ChartData {
-    let chartData : ChartData = {datasets: []} as ChartData;
+    let chartData: ChartData = { datasets: [] } as ChartData;
     this.capacityData.data.forEach(element => {
       if (element['scenario'] == this.getCurrentScenario().name) {
         const dataset = chartData.datasets.find(el => el.name == element['technology']);
-        const datapoint = {x: Number(element['year']), y: Number(element['value'])}
+        const datapoint = { x: Number(element['year']), y: Number(element['value']) }
         if (dataset) {
           dataset.data.push(datapoint);
         } else {
@@ -241,14 +297,14 @@ export class PlanService {
     });
     return chartData;
   }
-  
+
   //year,technology,value,scenario
   public getGenerationData(): ChartData {
-    let chartData : ChartData = {datasets: []} as ChartData;
+    let chartData: ChartData = { datasets: [] } as ChartData;
     this.generationData.data.forEach(element => {
       if (element['scenario'] == this.getCurrentScenario().name) {
         const dataset = chartData.datasets.find(el => el.name == element['technology']);
-        const datapoint = {x: Number(element['year']), y: Number(element['value'])}
+        const datapoint = { x: Number(element['year']), y: Number(element['value']) }
         if (dataset) {
           dataset.data.push(datapoint);
         } else {
@@ -273,5 +329,26 @@ export class PlanService {
 
   public getMapBounds(): [[number, number], [number, number]] {
     return this.loadedPlan.map.bounds;
+  }
+
+  changeZoomCenter(center: [number, number]) {
+    this.stateUpdate({type: StateUpdateType.zoomcenter, value: center})
+  }
+
+  changeZoomZoom(zoom: number) {
+    this.stateUpdate({type: StateUpdateType.zoomzoom, value: zoom})
+
+  }
+
+  setZoomCenter(value: [number, number]) {
+    this.zoomCenter = value;
+    this.zoomCenterSub.next(this.zoomCenter);
+
+  }
+
+  setZoomZoom(value: number) {
+    this.zoomZoom = value;
+    this.zoomZoomSub.next(this.zoomZoom);
+
   }
 }

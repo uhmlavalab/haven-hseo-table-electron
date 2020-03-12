@@ -1,4 +1,4 @@
-import { Plan, PlanService } from '@app/core';
+import { Plan, PlanStateService } from '../../../app/core';
 import { mapLayerColors, chartColors } from '../defaultColors';
 import * as d3 from 'd3';
 
@@ -61,7 +61,7 @@ export const OahuPlan: Plan = {
         legendColor: mapLayerColors.Transmission.border,
         filePath: 'assets/plans/oahu/layers/transmission.json',
         parcels: [],
-        setupFunction(planService: PlanService) {
+        setupFunction(planService: PlanStateService) {
           this.parcels.forEach(parcel => {
             d3.select(parcel.path)
               .style('fill', this.fillColor)
@@ -70,7 +70,7 @@ export const OahuPlan: Plan = {
               .style('stroke-width', (this.borderWidth * parcel.properties.Voltage_kV) + 'px');
           });
         },
-        updateFunction(planService: PlanService) {
+        updateFunction(planService: PlanStateService) {
           this.parcels.forEach(parcel => {
             d3.select(parcel.path)
               .style('opacity', this.active ? 0.85 : 0.0);
@@ -114,7 +114,7 @@ export const OahuPlan: Plan = {
         legendColor: mapLayerColors.Dod.fill,
         filePath: 'assets/plans/oahu/layers/government1.json',
         parcels: [],
-        setupFunction(planService: PlanService) {
+        setupFunction(planService: PlanStateService) {
           const colors = {
             'Public-Federal': '#e60000',
             'Public-State': '#ff7f7f',
@@ -129,7 +129,7 @@ export const OahuPlan: Plan = {
               .style('stroke-width', this.borderWidth + 'px');
           });
         },
-        updateFunction(planService: PlanService) {
+        updateFunction(planService: PlanStateService) {
           this.parcels.forEach(parcel => {
             d3.select(parcel.path)
               .style('opacity', this.active ? 0.85 : 0.0);
@@ -203,7 +203,7 @@ export const OahuPlan: Plan = {
         legendColor: mapLayerColors.Existing_RE.fill,
         filePath: 'assets/plans/oahu/layers/re_projects.json',
         parcels: [],
-        setupFunction(planService: PlanService) {
+        setupFunction(planService: PlanStateService) {
           const colors = {
             'solar': {
               'approved by regulator': '#e60000',
@@ -223,7 +223,7 @@ export const OahuPlan: Plan = {
               .style('stroke-width', this.borderWidth + 'px');
           });
         },
-        updateFunction(planService: PlanService) {
+        updateFunction(planService: PlanStateService) {
           this.parcels.forEach(parcel => {
             d3.select(parcel.path)
               .style('opacity', this.active ? 0.85 : 0.0);
@@ -382,7 +382,7 @@ export const OahuPlan: Plan = {
         legendColor: mapLayerColors.Agriculture.fill,
         filePath: 'assets/plans/oahu/layers/lsb2.json',
         parcels: [],
-        setupFunction(planService: PlanService) {
+        setupFunction(planService: PlanStateService) {
           const colors = {
             'A': '#7de87d',
             'B': '#2edd2e',
@@ -398,7 +398,7 @@ export const OahuPlan: Plan = {
               .style('stroke-width', this.borderWidth + 'px');
           });
         },
-        updateFunction(planService: PlanService) {
+        updateFunction(planService: PlanStateService) {
           this.parcels.forEach(parcel => {
             d3.select(parcel.path)
               .style('opacity', this.active ? 0.85 : 0.0);

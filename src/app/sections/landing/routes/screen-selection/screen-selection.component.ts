@@ -1,5 +1,5 @@
 import { Component } from '@angular/core';
-import { ElectronService } from '@app/core';
+import { WindowService } from '@app/core';
 
 @Component({
   selector: 'app-screen-selection',
@@ -8,7 +8,7 @@ import { ElectronService } from '@app/core';
 })
 export class ScreenSelectionComponent {
 
-  constructor(private electronService: ElectronService) { }
+  constructor(private electronService: WindowService) { }
 
   
   setAsSecondScreen() {

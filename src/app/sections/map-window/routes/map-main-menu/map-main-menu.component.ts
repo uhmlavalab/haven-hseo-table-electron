@@ -1,7 +1,6 @@
 import { Component, ChangeDetectorRef, OnDestroy } from '@angular/core';
-import { ElectronService, AppRoutes, AppInput } from '@app/core';
+import { WindowService, AppRoutes, AppInput, InputService } from '@app/core';
 import { Subscription } from 'rxjs';
-import { InputService } from '@app/input';
 
 interface MenuOption {
   name: string;
@@ -51,12 +50,12 @@ export class MapMainMenuComponent implements OnDestroy {
 
   electronMessageSub: Subscription;
 
-  constructor(private electronService: ElectronService, private detectorRef: ChangeDetectorRef, private inputService: InputService) {
+  constructor(private windowService: WindowService, private detectorRef: ChangeDetectorRef, private inputService: InputService) {
 
 
     this.menuOptions[0].selected = true;
 
-    this.electronMessageSub = this.electronService.windowMessageSubject.subscribe(value => {
+    this.electronMessageSub = this.windowService.windowMessageSubject.subscribe(value => {
       console.log(value);
       if (value.type == 'input') {
         this.processInput(value.input);
@@ -101,23 +100,23 @@ export class MapMainMenuComponent implements OnDestroy {
   }
 
   selectOption() {
-    this.electronService.rerouteApp(this.menuOptions[this.menuOptionSelected].route);
+    this.windowService.rerouteApp(this.menuOptions[this.menuOptionSelected].route);
   }
 
   routeToPlanSelection() {
-    this.electronService.rerouteApp(AppRoutes.planselection);
+    this.windowService.rerouteApp(AppRoutes.planselection);
   }
 
   rerouteToCalibration() {
-    this.electronService.rerouteApp(AppRoutes.calibration);
+    this.windowService.rerouteApp(AppRoutes.calibration);
   }
 
   restart() {
-    this.electronService.resetAllWindows();
+    this.windowService.resetAllWindows();
   }
 
   exit() {
-    this.electronService.exit()
+    this.windowService.exit()
   }
 
 }

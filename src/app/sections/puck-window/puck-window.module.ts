@@ -3,7 +3,6 @@ import { CommonModule } from '@angular/common';
 
 // Modules
 import { SharedModule } from '@app/shared';
-import { InputModule } from '@app/input';
 
 // Layout
 import { PuckWindowLayoutComponent } from './layout/puck-window-layout.component';
@@ -29,8 +28,7 @@ import { PuckPlanSelectionComponent } from './routes/puck-plan-selection/puck-pl
   imports: [
     CommonModule,
     PuckWindowRoutingModule,
-    SharedModule,
-    InputModule
+    SharedModule
   ]
 })
 export class PuckWindowModule { }

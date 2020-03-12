@@ -1,9 +1,9 @@
 import { Component, OnInit, NgZone, OnDestroy } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 
-import { ElectronService, AppRoutes, AppInput, PlanService } from '@app/core';
+import { WindowService, AppRoutes, AppInput, PlanStateService, InputService } from '@app/core';
 import { Subscription } from 'rxjs';
-import { InputService } from 'src/app/modules/input';
+import { StateUpdateType } from 'main';
 
 @Component({
   selector: 'app-map-window-layout',
@@ -14,24 +14,24 @@ export class MapWindowLayoutComponent implements OnInit, OnDestroy {
 
   private electronMessageSub: Subscription;
 
-  constructor(private ngZone: NgZone, private activeRoute: ActivatedRoute, private router: Router, private electronService: ElectronService, private inputService: InputService, private planService: PlanService) {
+  constructor(private ngZone: NgZone, private activeRoute: ActivatedRoute, private router: Router, private electronService: WindowService, private inputService: InputService, private planService: PlanStateService) {
 
     this.inputService.deregisterAllKeyboardEvents();
-    this.inputService.registerKeyboardEvent({ keyname: 'ArrowLeft', eventFunction: () => this.electronService.appInput(AppInput.left) });
-    this.inputService.registerKeyboardEvent({ keyname: 'ArrowRight', eventFunction: () =>this.electronService.appInput(AppInput.right) });
-    this.inputService.registerKeyboardEvent({ keyname: 'ArrowUp', eventFunction: () => this.electronService.appInput(AppInput.up) });
-    this.inputService.registerKeyboardEvent({ keyname: 'ArrowDown', eventFunction: () =>this.electronService.appInput(AppInput.down) });
-    this.inputService.registerKeyboardEvent({ keyname: '=', eventFunction: () => this.electronService.appInput(AppInput.plus) });
-    this.inputService.registerKeyboardEvent({ keyname: '-', eventFunction: () =>this.electronService.appInput(AppInput.minus) });
-    this.inputService.registerKeyboardEvent({ keyname: 'Enter', eventFunction: () => this.electronService.appInput(AppInput.enter) });
+    this.inputService.registerKeyboardEvent({ keyname: 'ArrowLeft', eventFunction: () => this.inputService.sendInput(AppInput.left) });
+    this.inputService.registerKeyboardEvent({ keyname: 'ArrowRight', eventFunction: () =>this.inputService.sendInput(AppInput.right) });
+    this.inputService.registerKeyboardEvent({ keyname: 'ArrowUp', eventFunction: () => this.inputService.sendInput(AppInput.up) });
+    this.inputService.registerKeyboardEvent({ keyname: 'ArrowDown', eventFunction: () =>this.inputService.sendInput(AppInput.down) });
+    this.inputService.registerKeyboardEvent({ keyname: '=', eventFunction: () => this.inputService.sendInput(AppInput.plus) });
+    this.inputService.registerKeyboardEvent({ keyname: '-', eventFunction: () =>this.inputService.sendInput(AppInput.minus) });
+    this.inputService.registerKeyboardEvent({ keyname: 'Enter', eventFunction: () => this.inputService.sendInput(AppInput.enter) });
 
     this.electronMessageSub = this.electronService.windowMessageSubject.subscribe(message => {
       if (!message) return;
       if (message.type == 'reroute') {
         this.reroute(message.route);
       }
-      if (message.type == 'plan-load') {
-        this.planService.loadPlan(message.planname).then(() => {
+      if (message.type == StateUpdateType.loadplan) {
+        this.planService.loadPlan(message.value).then(() => {
           this.rerouteToMapView();
         })
       }

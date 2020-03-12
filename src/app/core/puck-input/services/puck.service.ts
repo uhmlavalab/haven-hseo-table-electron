@@ -7,7 +7,8 @@ import { VideoFeed } from '../interfaces/VideoFeed';
 import { ProjectableMarker } from '../classes/ProjectableMarker';
 import { TrackingPoint } from '../classes/trackingPoint';
 import { PuckDataPoint } from '../interfaces/PuckDataPoint';
-import { ElectronService } from '@app/core';
+import { WindowService } from '../../services/window.service';
+import { PlanConfigService } from '../../services/plan-config.service';
 
 
 @Injectable({
@@ -54,7 +55,7 @@ export class PuckService {
 
   private defaultTrackingPoints: any;
 
-  constructor(private electronService: ElectronService) {
+  constructor(private windowService: WindowService, private planConfigService: PlanConfigService) {
 
     /* Aruco Js library requires AR.AR. for access */
     this.detector = new AR.AR.Detector();
@@ -90,7 +91,7 @@ export class PuckService {
     /* Holds the raw aruco marker data from each camera */
     const tempMarkerData = [];
     if (this.videoFeedArray.length == 0) return;
-    
+
     this.videoFeedArray.forEach(videoFeed => {
       if (videoFeed.video.readyState === videoFeed.video.HAVE_ENOUGH_DATA) {
 
@@ -206,14 +207,12 @@ export class PuckService {
    */
   public addVideoFeed(videoFeed: VideoFeed): any {
     if (!this.defaultTrackingPoints) {
-      this.defaultTrackingPoints = this.electronService.getDefaultTrackingPoints();
+      this.defaultTrackingPoints = this.planConfigService.getConfigFile().defaultTrackingPoints;
       if (this.defaultTrackingPoints) {
-
         this.createDefaultTrackingPoints();
         this.completeCalibration(false);  // Set up tracking without generating a new file.
       } else {
         setTimeout(() => this.addVideoFeed(videoFeed), 200);
-
       }
     }
     this.videoFeedArray.push(videoFeed);
@@ -263,7 +262,7 @@ export class PuckService {
     this.camHeight2 = this.trackingPoints[2].getCam2X() - this.trackingPoints[1].getCam2X();
     this.camWidth2 = this.trackingPoints[3].getCam2Y() - this.trackingPoints[2].getCam2Y();
     if (createFile) {
-      this.electronService.setDefaultTrackingPoints(this.defaultTrackingPoints);
+      this.planConfigService.setTrackingPoints(this.defaultTrackingPoints);
     }
     return true;
   }

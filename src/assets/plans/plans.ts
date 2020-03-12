@@ -1,4 +1,4 @@
-import { Plan } from '@app/core';
+import { Plan } from '../../app/core';
 
 import { MauiPlan } from './maui/plan';
 import { OahuPlan } from './oahu/plan';

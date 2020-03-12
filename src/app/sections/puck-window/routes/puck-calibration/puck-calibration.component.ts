@@ -1,5 +1,5 @@
 import { Component, ElementRef, ViewChild, AfterViewInit, OnDestroy } from '@angular/core';
-import { LeftRightPuckComponent, PuckService, ProjectableMarker } from 'src/app/modules/input';
+import { LeftRightPuckComponent, PuckService, ProjectableMarker } from '@app/core';
 import { Subscription } from 'rxjs';
 
 @Component({

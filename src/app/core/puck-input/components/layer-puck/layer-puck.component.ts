@@ -1,5 +1,5 @@
 import { Component, AfterViewInit, ViewChildren, ViewChild, Input, SimpleChanges } from '@angular/core';
-import { PlanService, MapLayer } from '@app/core';
+import { MapLayer } from '../../../interfaces/mapLayer';
 import { ProjectableMarker } from '../../classes/ProjectableMarker';
 
 @Component({
@@ -24,7 +24,7 @@ export class LayerPuckComponent extends ProjectableMarker implements AfterViewIn
   private angle: number;
   private addRemove: string;
 
-  constructor(private planService: PlanService) {
+  constructor() {
     super();
   }
 

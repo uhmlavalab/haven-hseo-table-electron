@@ -1,7 +1,5 @@
 import { Component, ElementRef, ViewChild, AfterViewInit, OnDestroy } from '@angular/core';
-import { PuckService, ProjectableMarker } from 'src/app/modules/input';
-import { ElectronService, AppInput } from '@app/core';
-import { LeftRightPuckComponent } from 'src/app/modules/input/puck-input/components/left-right-puck/left-right-puck.component';
+import {  AppInput, LeftRightPuckComponent, PuckService, ProjectableMarker, InputService } from '@app/core';
 import { Subscription } from 'rxjs';
 
 @Component({
@@ -28,7 +26,7 @@ export class PuckPlanSelectionComponent implements  AfterViewInit, OnDestroy {
   pucks: { marker: ProjectableMarker, div: ElementRef }[] = [];
   markersSub: Subscription;
 
-  constructor(private puckService: PuckService, private electronService: ElectronService) { 
+  constructor(private puckService: PuckService, private inputService: InputService) { 
     this.puckService.resetMarkersandVideos();
 
   }
@@ -54,15 +52,15 @@ export class PuckPlanSelectionComponent implements  AfterViewInit, OnDestroy {
   }
 
   rotateLeft() {
-    this.electronService.appInput(AppInput.left);
+    this.inputService.sendInput(AppInput.left);
   }
 
   rotateRight() {
-    this.electronService.appInput(AppInput.right);
+    this.inputService.sendInput(AppInput.right);
   }
 
   select() {
-    this.electronService.appInput(AppInput.enter);
+    this.inputService.sendInput(AppInput.enter);
   }
 
 }

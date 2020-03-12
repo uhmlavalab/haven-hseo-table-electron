@@ -1,4 +1,5 @@
 import { Component, OnInit } from '@angular/core';
+import { WindowService, PlanStateService, AppRoutes } from '@app/core';
 
 @Component({
   selector: 'app-secondscreen-main-menu',
@@ -8,9 +9,11 @@ import { Component, OnInit } from '@angular/core';
 export class SecondscreenMainMenuComponent implements OnInit {
 
   text = 'Main Menu';
+
   constructor() { }
 
   ngOnInit(): void {
+
   }
 
 }

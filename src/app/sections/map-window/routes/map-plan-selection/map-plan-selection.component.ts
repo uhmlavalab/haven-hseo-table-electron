@@ -1,6 +1,5 @@
 import { Component, ChangeDetectorRef } from '@angular/core';
-import { AppRoutes, ElectronService, PlanService, Plan, AppInput } from '@app/core';
-import { InputService } from '@app/input'
+import { AppRoutes, WindowService, PlanStateService, Plan, InputService, AppInput } from '@app/core';
 import { Subscription } from 'rxjs';
 
 interface MenuOption {
@@ -27,7 +26,7 @@ export class MapPlanSelectionComponent {
 
   electronMessageSub: Subscription;
 
-  constructor(private electronService: ElectronService, private planService: PlanService, private detectorRef: ChangeDetectorRef) {
+  constructor(private electronService: WindowService, private inputService: InputService, private planService: PlanStateService, private detectorRef: ChangeDetectorRef) {
 
     this.planService.getPlans().forEach(el => {
       this.menuOptions.push({
@@ -37,7 +36,7 @@ export class MapPlanSelectionComponent {
         route: AppRoutes.view,
         background: `url(${el.landingImagePath})`,
         click: () => {
-          this.electronService.loadPlan(el.name);
+          this.planService.changePlan(el.name);
         }
       })
     })
@@ -52,10 +51,8 @@ export class MapPlanSelectionComponent {
     })
 
     this.menuOptions[0].selected = true;
-    this.electronMessageSub = this.electronService.windowMessageSubject.subscribe(value => {
-      if (value.type == 'input') {
-        this.processInput(value.input);
-      }
+    this.electronMessageSub = this.inputService.inputSub.subscribe(value => {
+      this.processInput(value);
     })
   }
 

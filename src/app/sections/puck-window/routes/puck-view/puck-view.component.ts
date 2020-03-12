@@ -1,6 +1,5 @@
 import { Component, AfterViewInit, ViewChild, ElementRef } from '@angular/core';
-import { PuckService, ProjectableMarker, LayerPuckComponent, YearPuckComponent } from '@app/input';
-import { PlanService, MapLayer, ElectronService, AppInput } from '@app/core';
+import { PlanStateService, MapLayer, WindowService, AppInput, PuckService, ProjectableMarker, LayerPuckComponent, YearPuckComponent, InputService } from '@app/core';
 import { Subscription } from 'rxjs';
 
 @Component({
@@ -32,7 +31,7 @@ export class PuckViewComponent implements AfterViewInit {
 
   yearSubscription: Subscription;
 
-  constructor(private puckService: PuckService, private planService: PlanService, private electronService: ElectronService) {
+  constructor(private puckService: PuckService, private planService: PlanStateService, private electronService: WindowService, private inputService: InputService) {
     this.puckService.resetMarkersandVideos();
     this.mapLayers = this.planService.getMapLayers();
     this.selectedLayer = this.planService.getCurrentLayer();
@@ -72,19 +71,19 @@ export class PuckViewComponent implements AfterViewInit {
   }
 
   yearDecrease() {
-    this.electronService.appInput(AppInput.down);
+    this.inputService.sendInput(AppInput.down);
   }
 
   yearIncrease() {
-    this.electronService.appInput(AppInput.up);
+    this.inputService.sendInput(AppInput.up);
   }
 
   layerDecrease() {
-    this.electronService.appInput(AppInput.minus);
+    this.inputService.sendInput(AppInput.minus);
   }
 
   layerIncrease() {
-    this.electronService.appInput(AppInput.plus);
+    this.inputService.sendInput(AppInput.plus);
   }
 
   // /** Draws a line between the layer puck element and the add puck element.

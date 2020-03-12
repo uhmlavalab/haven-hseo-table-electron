@@ -2,17 +2,21 @@ import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
 
 import { MapElementComponent } from './components/map-element/map-element.component';
-
+import { LeafletModule } from '@asymmetrik/ngx-leaflet';
+import { LeafletMapComponent } from './components/leaflet-map/leaflet-map.component';
 
 @NgModule({
   declarations: [
-    MapElementComponent
+    MapElementComponent,
+    LeafletMapComponent
   ],
   imports: [
-    CommonModule
+    CommonModule,
+    LeafletModule.forRoot()
   ],
   exports: [
-    MapElementComponent
+    MapElementComponent,
+    LeafletMapComponent
   ]
 })
 export class MapsModule { }

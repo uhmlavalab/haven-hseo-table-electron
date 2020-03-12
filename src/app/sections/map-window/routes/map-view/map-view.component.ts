@@ -1,5 +1,5 @@
 import { Component, AfterViewInit, ChangeDetectorRef, ViewChild, ElementRef } from '@angular/core';
-import { PlanService, ElementPosition, ElectronService, ElementSize, Scenario, MapLayer, AppInput } from '@app/core';
+import { PlanStateService, ElementPosition, WindowService, ElementSize, Scenario, MapLayer, AppInput, PlanConfigService, InputService, PlanConfig } from '@app/core';
 
 import { ChartData, PieChartComponent, LineChartComponent } from '@app/charts';
 import { MapElementComponent } from '@app/maps';
@@ -51,8 +51,10 @@ export class MapViewComponent implements AfterViewInit {
 
   electronMessageSub: Subscription;
 
+  configFile: PlanConfig;
 
-  constructor(private planService: PlanService, private detectorRef: ChangeDetectorRef, private electronService: ElectronService) {
+
+  constructor(private planService: PlanStateService, private planConfigService: PlanConfigService, private inputService: InputService, private detectorRef: ChangeDetectorRef, private electronService: WindowService) {
     this.scenario = this.planService.getCurrentScenario();
     this.layer = this.planService.getCurrentLayer();
     this.year = this.planService.getCurrentYear();
@@ -61,32 +63,34 @@ export class MapViewComponent implements AfterViewInit {
     this.planLayers = this.planService.getMapLayers();
     this.mapBounds = this.planService.getMapBounds();
 
-    this.mapPosition = this.electronService.getMapScreenMapPosition(this.planName);
-    this.mapSize = this.electronService.getMapScreenMapSize(this.planName);
+    this.configFile = this.planConfigService.getConfigFile();
 
-    this.piePosition = this.electronService.getMapScreenPieChartPosition(this.planName);
-    this.pieSize = this.electronService.getMapScreenPieChartSize(this.planName);
+    const planName = this.planService.getPlanName();
 
-    this.linePosition = this.electronService.getMapScreenLineChartPosition(this.planName);
-    this.lineSize = this.electronService.getMapScreenLineChartSize(this.planName);
+    this.mapPosition = this.configFile.plans[planName].css.mapwindow.map.position;
+    this.mapSize = this.configFile.plans[planName].css.mapwindow.map.size;
 
-    this.textLabelPosition = this.electronService.getMapScreenTextLabelPosition(this.planName);
-    this.textLabelSize = this.electronService.getMapScreenTextLabelSize(this.planName);
+    this.piePosition = this.configFile.plans[planName].css.mapwindow.piechart.position;
+    this.pieSize = this.configFile.plans[planName].css.mapwindow.piechart.size;
 
-    this.electronMessageSub = this.electronService.windowMessageSubject.subscribe(value => {
-      if (value.type == 'input') {
-        this.processInput(value.input);
-      }
+    this.linePosition = this.configFile.plans[planName].css.mapwindow.linechart.position;
+    this.lineSize = this.configFile.plans[planName].css.mapwindow.linechart.size;
+
+    this.textLabelPosition = this.configFile.plans[planName].css.mapwindow.textlabel.position;
+    this.textLabelSize = this.configFile.plans[planName].css.mapwindow.textlabel.size;
+
+    this.electronMessageSub = this.inputService.inputSub.subscribe(value => {
+      this.processInput(value);
     })
   }
 
   processInput(input: AppInput) {
     switch (input) {
       case AppInput.left:
-        this.planService.decrementScenario()
+        this.planService.previousScenario()
         break;
       case AppInput.right:
-        this.planService.incrementScenario()
+        this.planService.nextScenario()
         break;
       case AppInput.minus:
         this.planService.decrementNextLayer()
@@ -101,7 +105,7 @@ export class MapViewComponent implements AfterViewInit {
         this.planService.decrementCurrentYear()
         break;
       case AppInput.enter:
-        this.planService.toggleLayer()
+        this.planService.toggleLayer(this.layer)
         break;
     }
   }
@@ -178,25 +182,29 @@ export class MapViewComponent implements AfterViewInit {
   onLineDragEnd(event: any) {
     this.linePosition.x = this.lineDiv.nativeElement.getBoundingClientRect().left;
     this.linePosition.y = this.lineDiv.nativeElement.getBoundingClientRect().top;
-    this.electronService.setMapScreenLineChartPosition(this.planName, this.linePosition);
+    this.configFile.plans[this.planName].css.mapwindow.linechart.position = { x: this.linePosition.x, y: this.linePosition.y };
+    this.planConfigService.updateConfigfile(this.configFile);
   }
 
   onPieDragEnd(event: any) {
     this.piePosition.x = this.pieDiv.nativeElement.getBoundingClientRect().left;
     this.piePosition.y = this.pieDiv.nativeElement.getBoundingClientRect().top;
-    this.electronService.setMapScreenPieChartPosition(this.planName, this.piePosition);
+    this.configFile.plans[this.planName].css.mapwindow.piechart.position = { x: this.piePosition.x, y: this.piePosition.y };
+    this.planConfigService.updateConfigfile(this.configFile);
   }
 
   onMapDragEnd(event: any) {
     this.mapPosition.x = this.mapDiv.nativeElement.getBoundingClientRect().left;
     this.mapPosition.y = this.mapDiv.nativeElement.getBoundingClientRect().top;
-    this.electronService.setMapScreenMapPosition(this.planName, this.mapPosition);
+    this.configFile.plans[this.planName].css.mapwindow.map.position = { x: this.mapPosition.x, y: this.mapPosition.y };
+    this.planConfigService.updateConfigfile(this.configFile);
   }
 
   onLabelDragEnd() {
     this.textLabelPosition.x = this.textLabel.nativeElement.getBoundingClientRect().left;
     this.textLabelPosition.y = this.textLabel.nativeElement.getBoundingClientRect().top;
-    this.electronService.setMapScreenTextLabelPosition(this.planName, this.textLabelPosition);
+    this.configFile.plans[this.planName].css.mapwindow.textlabel.position = { x: this.textLabelPosition.x, y: this.textLabelPosition.y };
+    this.planConfigService.updateConfigfile(this.configFile);
   }
 
   positionMap(position: ElementPosition) {
@@ -239,27 +247,39 @@ export class MapViewComponent implements AfterViewInit {
     const width = this.mapSize.width + resize;
     const height = this.mapSize.height + resize;
     this.mapSize = { width, height };
-    this.electronService.setMapScreenMapSize(this.planName, this.mapSize);
+    this.configFile.plans[this.planName].css.mapwindow.map.size = this.mapSize;
+    this.planConfigService.updateConfigfile(this.configFile);
   }
 
   resizeLineChart(resize: number) {
     const width = this.lineSize.width + resize;
     const height = this.lineSize.height + resize;
     this.lineSize = { width, height };
-    this.electronService.setMapScreenLineChartSize(this.planName, this.lineSize);
+    this.configFile.plans[this.planName].css.mapwindow.linechart.size = this.lineSize
+    this.planConfigService.updateConfigfile(this.configFile);
 
   }
   resizePieChart(resize: number) {
     const width = this.pieSize.width + resize;
     const height = this.pieSize.height + resize;
     this.pieSize = { width, height };
-    this.electronService.setMapScreenPieChartSize(this.planName, this.pieSize);
+    this.configFile.plans[this.planName].css.mapwindow.piechart.size = this.pieSize
+    this.planConfigService.updateConfigfile(this.configFile);
   }
 
   resizeTextLabel(resize: number) {
     this.textLabelSize += resize;
     this.sizeTextLabel(this.textLabelSize)
-    this.electronService.setMapScreenTextLabelSize(this.planName, this.textLabelSize);
+    this.configFile.plans[this.planName].css.mapwindow.textlabel.size = this.textLabelSize;
+    this.planConfigService.updateConfigfile(this.configFile);
+  }
+
+  centerMap(x: any) {
+    this.planService.changeZoomCenter(x);
+  }
+
+  zoomMap(x: any) {
+    this.planService.changeZoomZoom(x);
   }
 
 }

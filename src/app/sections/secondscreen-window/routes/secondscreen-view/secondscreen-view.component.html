@@ -1,6 +1,10 @@
-<app-map-element cdkDrag (cdkDragReleased)="onMapDragEnd($event)" #map [mapLayers]="planLayers" [planService]="planService" [size]="mapSize" [baseImage]="baseImageURL"
-  [bounds]="mapBounds"></app-map-element>
+<!-- <app-map-element cdkDrag (cdkDragReleased)="onMapDragEnd($event)" #map [mapLayers]="planLayers" [planService]="planService" [size]="mapSize" [baseImage]="baseImageURL"
+  [bounds]="mapBounds"></app-map-element> -->
 
 <app-layer-info [mapLayer]="layer"></app-layer-info>
 
 <app-layer-list [layers]="planLayers" [selectedLayer]="layer"></app-layer-list>
+
+<div class="map-container">
+  <app-leaflet-map [center]="mapCenter" [zoom]="mapZoom" [layers]="planLayers"></app-leaflet-map>
+</div>

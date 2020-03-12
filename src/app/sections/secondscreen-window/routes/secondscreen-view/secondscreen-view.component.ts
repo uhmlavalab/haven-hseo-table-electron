@@ -1,6 +1,6 @@
 import { Component, AfterViewInit, ViewChild, ChangeDetectorRef, ElementRef } from '@angular/core';
 import { MapElementComponent } from 'src/app/modules/maps';
-import { PlanService, MapLayer, ElementSize, ElementPosition, Scenario, ElectronService } from '@app/core';
+import { PlanStateService, MapLayer, ElementSize, ElementPosition, Scenario, WindowService, PlanConfig, PlanConfigService } from '@app/core';
 import { PieChartComponent, LineChartComponent, ChartData } from '@app/charts';
 
 @Component({
@@ -16,7 +16,7 @@ export class SecondscreenViewComponent implements AfterViewInit {
 
   planName: string = 'oahu';
   planLayers: MapLayer[];
-  
+
   @ViewChild('map', { static: false }) map: MapElementComponent;
   @ViewChild('map', { static: false, read: ElementRef }) mapDiv: ElementRef;
   mapPosition: ElementPosition;
@@ -24,28 +24,35 @@ export class SecondscreenViewComponent implements AfterViewInit {
   mapBounds: [[number, number], [number, number]];
   baseImageURL: string;
 
-  constructor(private planService: PlanService, private detectorRef: ChangeDetectorRef, private electronService: ElectronService) {
+  configFile: PlanConfig;
+
+  text = 'Main Menu';
+  mapCenter = [-157.647, 21.252]
+  mapZoom = 10;
+
+  constructor(private planService: PlanStateService, private planConfigService: PlanConfigService, private detectorRef: ChangeDetectorRef, private electronService: WindowService) {
     this.scenario = this.planService.getCurrentScenario();
     this.layer = this.planService.getCurrentLayer();
     this.year = this.planService.getCurrentYear();
     this.baseImageURL = this.planService.getBaseImagePath();
     this.planLayers = this.planService.getMapLayers();
     this.mapBounds = this.planService.getMapBounds();
-    this.mapSize = {width: 1400, height: 1400};
+    this.mapSize = { width: 1400, height: 1400 };
+    this.configFile = this.planConfigService.getConfigFile();
 
-    this.mapPosition = this.electronService.getSecondScreenMapPosition(this.planName);
-    this.mapSize = this.electronService.getSecondScreenMapSize(this.planName);
+    this.mapPosition = this.configFile.plans[this.planName].css.secondwindow.map.position;
+    this.mapSize = this.configFile.plans[this.planName].css.secondwindow.map.size;
   }
 
   ngAfterViewInit(): void {
 
-    this.positionMap(this.mapPosition);
-    this.sizeMap(this.mapSize);
+    // this.positionMap(this.mapPosition);
+    // this.sizeMap(this.mapSize);
 
-    this.mapDiv.nativeElement.addEventListener("wheel", (event) => {
-      const resize = (event.deltaY > 0) ? 4 : -4;
-      this.mapResize(resize);
-    });
+    // this.mapDiv.nativeElement.addEventListener("wheel", (event) => {
+    //   const resize = (event.deltaY > 0) ? 4 : -4;
+    //   this.mapResize(resize);
+    // });
 
     this.planService.currentYearSub.subscribe(year => {
       this.year = year;
@@ -65,6 +72,22 @@ export class SecondscreenViewComponent implements AfterViewInit {
       this.map.updateLayers();
       this.detectorRef.detectChanges();
     });
+
+    this.planService.zoomCenterSub.subscribe(value => {
+      console.log(value);
+      if (value) {
+        this.mapCenter = value;
+        this.detectorRef.detectChanges();
+      }
+    })
+
+    this.planService.zoomZoomSub.subscribe(value => {
+      console.log(value);
+      if (value) {
+        this.mapZoom = value;
+        this.detectorRef.detectChanges();
+      }
+    })
   }
 
   updateYear(year: number) {
@@ -74,13 +97,14 @@ export class SecondscreenViewComponent implements AfterViewInit {
   }
 
   changeData() {
-  
+
   }
 
   onMapDragEnd(event: any) {
     this.mapPosition.x = this.mapDiv.nativeElement.getBoundingClientRect().left;
     this.mapPosition.y = this.mapDiv.nativeElement.getBoundingClientRect().top;
-    this.electronService.setSecondScreenMapPosition(this.planName, this.mapPosition);
+    this.configFile.plans.oahu.css.secondwindow.map.position = { x: this.mapPosition.x, y: this.mapPosition.y };
+    this.planConfigService.updateConfigfile(this.configFile);
   }
 
   positionMap(position: ElementPosition) {
@@ -96,7 +120,8 @@ export class SecondscreenViewComponent implements AfterViewInit {
     const width = this.mapSize.width + resize;
     const height = this.mapSize.height + resize;
     this.mapSize = { width, height };
-    this.electronService.setSecondScreenMapSize(this.planName, this.mapSize);
+    this.configFile.plans.oahu.css.secondwindow.map.size = this.mapSize;
+    this.planConfigService.updateConfigfile(this.configFile);
   }
 
 

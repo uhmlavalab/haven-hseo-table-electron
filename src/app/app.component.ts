@@ -1,6 +1,5 @@
 import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
-import { ElectronService } from '@app/core';
 
 @Component({
   selector: 'app-root',
@@ -9,7 +8,7 @@ import { ElectronService } from '@app/core';
 })
 
 export class AppComponent implements OnInit {
-  constructor(private router: Router, private electronService: ElectronService) {}
+  constructor(private router: Router) {}
 
   ngOnInit() {
     this.router.navigate(['landing'])

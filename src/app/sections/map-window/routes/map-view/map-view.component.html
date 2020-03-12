@@ -5,7 +5,7 @@
 
 
 <app-map-element cdkDrag (cdkDragReleased)="onMapDragEnd($event)" #map [mapLayers]="planLayers" [planService]="planService" [size]="mapSize" [baseImage]="baseImageURL"
-  [bounds]="mapBounds"></app-map-element>
+  [bounds]="mapBounds" (center)="centerMap($event)" (zoom)="zoomMap($event)"></app-map-element>
 
 <app-pie-chart cdkDrag (cdkDragReleased)="onPieDragEnd($event)" #pieChart [size]="pieSize" [title]="pieTitle"
   [legend]="pieLegend" [fontSize]="pieFontSize" [data]="pieData"></app-pie-chart>

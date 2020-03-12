@@ -3,6 +3,138 @@ import * as path from 'path';
 import * as url from 'url';
 import * as fs from 'fs';
 
+export interface PlanConfig {
+  puckWindowWidth: number,
+  defaultTrackingPoints: {
+    offsets: {
+      xOffset: number,
+      yOffset: number,
+      xOffset2: number,
+      yOffset2: number,
+    },
+    trackingPoints: [
+      {
+        cam2X: number,
+        cam2Y: number,
+        camX: number,
+        camY: number,
+        mapX: number,
+        mapY: number,
+      },
+      {
+        cam2X: number,
+        cam2Y: number,
+        camX: number,
+        camY: number,
+        mapX: number,
+        mapY: number,
+      },
+      {
+        cam2X: number,
+        cam2Y: number,
+        camX: number,
+        camY: number,
+        mapX: number,
+        mapY: number,
+      },
+      {
+        cam2X: number,
+        cam2Y: number,
+        camX: number,
+        camY: number,
+        mapX: number,
+        mapY: number,
+      },
+      {
+        cam2X: number,
+        cam2Y: number,
+        camX: number,
+        camY: number,
+        mapX: number,
+        mapY: number,
+      },
+      {
+        cam2X: number,
+        cam2Y: number,
+        camX: number,
+        camY: number,
+        mapX: number,
+        mapY: number,
+      },
+    ]
+  },
+  plans: {
+    oahu: {
+      css: {
+        mapwindow: {
+          map: {
+            position: { x: number, y: number },
+            size: { width: number, height: number },
+          },
+          linechart: {
+            position: { x: number, y: number },
+            size: { width: number, height: number },
+          },
+          piechart: {
+            position: { x: number, y: number },
+            size: { width: number, height: number },
+          },
+          textlabel: {
+            position: { x: number, y: number },
+            size: number
+          }
+        },
+        secondwindow: {
+          map: {
+            position: { x: number, y: number },
+            size: { width: number, height: number },
+          },
+          legend: {
+            position: { x: number, y: number },
+            size: { width: number, height: number }
+          },
+          layerdetails: {
+            position: { x: number, y: number },
+            size: { width: number, height: number }
+          }
+        }
+      }
+    }
+  }
+};
+export enum AppInput {
+  enter = 'enter',
+  left = 'left',
+  right = 'right',
+  up = 'up',
+  down = 'down',
+  backward = 'backward',
+  forward = 'forward',
+  minus = 'minus',
+  plus = 'plus',
+  esc = 'esc'
+}
+
+export enum StateUpdateType {
+  year = 'year',
+  layerselection = 'layerselection',
+  layertoggle = 'layertoggle',
+  scenario = 'scenario',
+  loadplan = 'loadplan',
+  zoomcenter = 'zoomcenter',
+  zoomzoom = 'zoomzoom'
+}
+
+export enum AppRoutes {
+  mainmenu = 'main-menu',
+  planselection = 'plan-selection',
+  calibration = 'calibration',
+  view = 'view',
+  exit = 'exit',
+  restart = 'restart'
+}
+
+
 let windows: BrowserWindow[] = [];
 
 let puckWindow: BrowserWindow;
@@ -18,105 +150,7 @@ const args = process.argv.slice(1), serve = args.some(val => val === '--serve');
 
 const dataDir = 'C:/ProgramData/ProjecTable';
 
-let configFile = {
-  puckWindowWidth: 200,
-  defaultTrackingPoints: {
-    offsets: {
-        xOffset: 116,
-        yOffset: 55,
-        xOffset2: 63,
-        yOffset2: 139,
-    },
-    trackingPoints: [
-        {
-            cam2X: 32.5,
-            cam2Y: 73,
-            camX: 0,
-            camY: 0,
-            mapX: 40.5,
-            mapY: 40.5,
-        },
-        {
-            cam2X: 34.5,
-            cam2Y: 354.5,
-            camX: 0,
-            camY: 0,
-            mapX: 260.8300018310547,
-            mapY: 40.5,
-        },
-        {
-            cam2X: 355,
-            cam2Y: 74,
-            camX: 49,
-            camY: 70,
-            mapX: 40.5,
-            mapY: 386.1000061035156,
-        },
-        {
-            cam2X: 362,
-            cam2Y: 341,
-            camX: 50.5,
-            camY: 348.5,
-            mapX: 260.8300018310547,
-            mapY: 386.1000061035156,
-        },
-        {
-            cam2X: 0,
-            cam2Y: 0,
-            camX: 306,
-            camY: 72,
-            mapX: 40.5,
-            mapY: 654.0499877929688,
-        },
-        {
-            cam2X: 0,
-            cam2Y: 0,
-            camX: 305.5,
-            camY: 343,
-            mapX: 260.8300018310547,
-            mapY: 654.0499877929688,
-        },
-    ]
-  },
-  plans: {
-    oahu : {
-      css: {
-        mapwindow: {
-          map: {
-            position: { x: 0, y: 0 },
-            size: {width: 0, height: 0},
-          },
-          linechart: {
-            position: { x: 0, y: 0 },
-            size: {width: 0, height: 0},
-          },
-          piechart: {
-            position: { x: 0, y: 0 },
-            size: {width: 0, height: 0},
-          },
-          textlabel: {
-            position: {x: 0, y: 0},
-            size: 18
-          }
-        },
-        secondwindow: {
-          map: {
-            position: { x: 0, y: 0 },
-            size: {width: 0, height: 0},
-          },
-          legend: {
-            position: {x: 0, y: 0},
-            size: {width: 200, height: 1000}
-          },
-          layerdetails: {
-            position: {x:0, y: 0},
-            size: {width: 400, height: 400}
-          }
-        }
-      }
-    }
-  }
-};
+let configFile: PlanConfig;
 
 // Config File Functions
 function loadConfigFile(): Promise<any> {
@@ -181,10 +215,52 @@ function createWindows() {
 
   ipcMain.on('shift-puck-screen', (evt, msg) => shiftPuckScreen(msg.direction));
 
-  ipcMain.on('save-config-element', (evt, msg) => saveConfigProperty(configFile, msg.path, msg.value));
+  ipcMain.on('save-config', (evt, msg) => saveConfig(msg.configFile));
+
+  ipcMain.on('input-message', (evt, msg) => passInputMessage(msg.input));
+
+  ipcMain.on('state-message', (evt, msg) => passStateMessage(msg.type, msg.value));
+
+  ipcMain.on('reroute', (evt, msg) => rerouteMessage(msg.value));
 
   ipcMain.on('close', () => closeProgram());
 
+}
+
+function rerouteMessage(route: AppRoutes) {
+  if (mapWindow) {
+    mapWindow.webContents.send('reroute', { route });
+  }
+  if (puckWindow) {
+    mapWindow.webContents.send('reroute', { route });
+  }
+  if (secondWindow) {
+    secondWindow.webContents.send('reroute', { route });
+  }
+}
+
+function passInputMessage(input: AppInput) {
+  if (mapWindow) {
+    mapWindow.webContents.send('input-message', input);
+  }
+  if (puckWindow) {
+    mapWindow.webContents.send('input-message', input);
+  }
+  if (secondWindow) {
+    secondWindow.webContents.send('input-message', input);
+  }
+}
+
+function passStateMessage(type: StateUpdateType, value: any) {
+  if (mapWindow) {
+    mapWindow.webContents.send('state-message', { type, value });
+  }
+  if (puckWindow) {
+    mapWindow.webContents.send('state-message', { type, value });
+  }
+  if (secondWindow) {
+    secondWindow.webContents.send('state-message', { type, value });
+  }
 }
 
 
@@ -193,14 +269,14 @@ function setMapWindow(winWebContents: Electron.WebContents) {
     if (el.webContents === winWebContents) {
       mapWindow = el;
       mapWindow.webContents.send('map-window-confirmation', 'Map Window successfully set.');
-      mapWindow.webContents.send('send-config', {configFile: configFile});
+      mapWindow.webContents.send('send-config', { configFile: configFile });
       if (!mapWindowMessenger) {
         mapWindowMessenger = ipcMain.on('message-to-map-window', (evt, msg) => mapWindow.webContents.send('message-for-map-window', msg));
       }
       if (!puckWindow) {
         setupPuckWindow();
         puckWindow.webContents.send('puck-window-confirmation', 'Puck Window successfully set.');
-        puckWindow.webContents.send('send-config', {configFile: configFile});
+        puckWindow.webContents.send('send-config', { configFile: configFile });
         if (!puckWindowMessenger) {
           puckWindowMessenger = ipcMain.on('message-to-puck-window', (evt, msg) => puckWindow.webContents.send('message-for-puck-window', msg));
         }
@@ -218,7 +294,7 @@ function setSecondScreenWindow(winWebContents: Electron.WebContents) {
     if (el.webContents === winWebContents) {
       secondWindow = el;
       secondWindow.webContents.send('secondscreen-window-confirmation', 'SecondScreen Window successfully set.');
-      secondWindow.webContents.send('send-config', {configFile: configFile});
+      secondWindow.webContents.send('send-config', { configFile: configFile });
       if (!secondscreenWindowMessenger) {
         secondscreenWindowMessenger = ipcMain.on('message-to-secondscreen-window', (evt, msg) => secondWindow.webContents.send('message-for-secondscreen-window', msg));
       }
@@ -262,13 +338,13 @@ function cleanWindowSelections() {
 function isWindowSet(winWebContents: Electron.WebContents) {
   if (mapWindow && mapWindow.webContents === winWebContents) {
     mapWindow.webContents.send('window-is-set', { windowName: "map" });
-    mapWindow.webContents.send('send-config', {configFile: configFile});
+    mapWindow.webContents.send('send-config', { configFile: configFile });
   } else if (secondWindow && secondWindow.webContents === winWebContents) {
     secondWindow.webContents.send('window-is-set', { windowName: "secondscreen" });
-    secondWindow.webContents.send('send-config', {configFile: configFile});
+    secondWindow.webContents.send('send-config', { configFile: configFile });
   } else if (puckWindow && puckWindow.webContents === winWebContents) {
     puckWindow.webContents.send('window-is-set', { windowName: "puck" });
-    puckWindow.webContents.send('send-config', {configFile: configFile});
+    puckWindow.webContents.send('send-config', { configFile: configFile });
 
   }
 }
@@ -382,14 +458,9 @@ function closeProgram() {
   app.quit();
 }
 
-function saveConfigProperty(obj, path, value)  {
-  if (path.length === 1) {
-    obj[path] = value
-    console.log(JSON.stringify(configFile));
-    saveConfigFile();
-    return
-  }
-  return saveConfigProperty(obj[path[0]], path.slice(1), value)
+function saveConfig(value) {
+  configFile = value;
+  saveConfigFile();
 }
 
 try {

@@ -1,5 +1,4 @@
 import { Component, OnInit } from '@angular/core';
-import { PlanService } from '@app/core';
 
 @Component({
   selector: 'app-add-puck',
@@ -17,7 +16,7 @@ export class AddPuckComponent implements OnInit {
 
   private addRemoveText: string;
 
-  constructor(private planService: PlanService) {
+  constructor() {
     // this.selectedLayer = {
     //   // icon: this.planService.getSelectedLayer().iconPath,
     //   // active: this.planService.getSelectedLayer().active,

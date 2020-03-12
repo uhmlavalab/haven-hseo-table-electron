@@ -1,6 +1,6 @@
-import { Component, OnInit, ViewChild, ElementRef, Input, SimpleChanges } from '@angular/core';
+import { Component, OnInit, ViewChild, ElementRef, Input, SimpleChanges, Output, EventEmitter } from '@angular/core';
 import * as d3 from 'd3';
-import { Parcel, ElementSize, MapLayer, PlanService } from '@app/core';
+import { Parcel, ElementSize, MapLayer, PlanStateService } from '@app/core';
 
 @Component({
   selector: 'app-map-element',
@@ -15,7 +15,10 @@ export class MapElementComponent implements OnInit {
   @Input() bounds: [[number, number], [number, number]];
   @Input() baseImage: string;
   @Input() mapLayers: MapLayer[];
-  @Input() planService: PlanService;
+  @Input() planService: PlanStateService;
+  @Output() center = new EventEmitter();
+  z = 10;
+  @Output() zoom = new EventEmitter();
 
   aspectRatio: number;
   rasterBounds: any[];
@@ -24,6 +27,7 @@ export class MapElementComponent implements OnInit {
   path: d3.geo.Path;
   map: d3.Selection<any>;
 
+  zoomenabled = false;
 
   constructor() { }
 
@@ -48,6 +52,55 @@ export class MapElementComponent implements OnInit {
       .attr('xlink:href', `${this.baseImage}`)
       .attr('width', this.size.width)
       .attr('height', this.size.height);
+
+    d3.json(`assets/plans/oahu/layers/coastline.json`, (error, geoData) => {
+      const bounds = [this.projection(this.bounds[0]), this.projection(this.bounds[1])];
+      const scale = 1 / Math.max((bounds[1][0] - bounds[0][0]) / this.size.width, (bounds[1][1] - bounds[0][1]) / this.size.height);
+      const transform = [
+        (this.size.width - scale * (bounds[1][0] + bounds[0][0])) / 2,
+        (this.size.height - scale * (bounds[1][1] + bounds[0][1])) / 2
+      ] as [number, number];
+
+      this.projection = d3.geo.mercator()
+        .scale(scale)
+        .translate(transform);
+
+      const path = d3.geo.path()
+        .projection(this.projection);
+      console.log('hiii');
+      const that = this;
+      this.map.selectAll('outline')
+        .data(geoData.features)
+        .enter().append('path')
+        .attr('d', path)
+        .attr('class', 'coastline')
+        .attr('stroke', 'white')
+        .attr('stroke-width', 1)
+        .on('mousemove', function () {
+          const pos = d3.mouse(this);
+          const px = pos[0];
+          const py = pos[1];
+          const coords = that.projection.invert([px, py]);
+          that.center.emit([coords[1], coords[0]]);
+        })
+        .on('mouseenter', function () {
+          that.zoomenabled = true;
+        })
+        .on('mouseexit', function () {
+          that.zoomenabled = false;
+        });
+
+        document.addEventListener('wheel' ,(event) => {
+          if (that.zoomenabled) {
+            const resize = (event.deltaY > 0) ? 1 : -1;
+            that.z += resize;
+            that.z = Math.min(20, Math.max(0, that.z));
+            that.zoom.emit(that.z);
+            console.log(that.z);
+          }
+
+        })
+    });
 
     this.mapLayers.forEach(mapLayer => {
       mapLayer.active = false;
