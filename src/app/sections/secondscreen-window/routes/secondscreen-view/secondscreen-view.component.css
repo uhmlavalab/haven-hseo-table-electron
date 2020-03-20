@@ -5,17 +5,51 @@ app-map-element {
 
 app-layer-info {
   position: absolute;
-  right: 1rem;
-  top: 1rem;
-  width: calc(((100vw - 80vh)/2) - 2rem);
-  height: 90vh;
+  left: 1rem;
+  top: 2rem;
+  width: 25vw;
+  height: 50vh;
+  border: solid 3px white;
+  overflow: hidden;
 }
+
+app-layer-detail {
+  position: absolute;
+  right: 1rem;
+  top: 2rem;
+  width: 25vw;
+  height: 50vh;
+  border: solid 3px white;
+  overflow: hidden;
+}
+
+
+app-layer-legend {
+  position: absolute;
+  left: 1rem;
+  top: calc(2rem + 50vh + 1rem);
+  width: 25vw;
+  height: 30vh;
+  border: solid 3px white;
+  overflow: hidden;
+}
+
+app-battery-info {
+  position: absolute;
+  right: 1rem;
+  top: calc(2rem + 50vh + 1rem);
+  width: 25vw;
+  height: 30vh;
+  border: solid 3px white;
+  overflow: hidden;
+}
+
 
 app-layer-list {
   position: absolute;
-  left: 5rem;
-  top: 50%;
-  transform: translate(0, -50%);
+  left: 50%;
+  bottom: 2rem;
+  transform: translate(-50%, 0%);
 }
 
 
@@ -26,12 +60,56 @@ app-leaflet-map {
 
 .map-container {
   border-radius: 50%;
-  border: 3px #00D2FF solid;
-  width: 80vh;
-  height: 80vh;
+  border: 4px white solid;
+  width: 75vh;
+  height: 75vh;
   left: 50%;
   top: 50%;
-  transform: translate(-50%, -50%);
+  transform: translate(-50%, -52%);
   position: absolute;
   overflow: hidden;
+}
+
+.title {
+  letter-spacing: 2rem;
+  left: 50%;
+  top: 1rem;
+  transform: translate(-50%, 0%);
+  position: absolute;
+  font-size: 94px;
+  line-height: 0;
+  font-weight: bold;
+}
+
+.scenarioText {
+  left: 50%;
+  top: 48%;
+  position: absolute;
+  line-height: 0;
+  font-size: 42px;
+}
+
+.islandText {
+  left: 50%;
+  top: 48%;
+  position: absolute;
+  line-height: 0;
+  font-size: 42px;
+}
+
+
+.yearText {
+  left: 50%;
+  top: 48%;
+  position: absolute;
+  line-height: 0;
+  font-size: 42px;
+}
+
+.reText {
+  left: 50%;
+  top: 48%;
+  position: absolute;
+  line-height: 0;
+  font-size: 42px;
 }

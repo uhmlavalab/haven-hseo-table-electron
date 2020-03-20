@@ -1,9 +1,11 @@
-<div class="grid-container">
+<div class="grid-container" #gridcontainer>
   <div class="grid-item" *ngFor="let layer of layers" >
-    <div class="icon-container" [ngStyle]="{backgroundColor: layer.legendColor}"   [style.borderColor]="layer == selectedLayer ? '#00D2FF' : 'white'" 
+    <div class="icon-container" [ngStyle]="{backgroundColor: layer.legendColor}"   [style.borderColor]="layer == selectedLayer ? '#00D2FF' : 'white'"  [style.borderWidth]="layer == selectedLayer ? '6px' : '3px'"
     >
       <img class="layer-icon" src="{{layer.iconPath}}" alt="">
-      <div class="layer-title"><p>{{ layer.displayName }}</p></div>
+      <div class="layer-title">
+        <p [style.color]="layer == selectedLayer ? '#00D2FF' : 'white'">{{ layer.displayName }}</p>
+      </div>
     </div>
   </div>
 

@@ -2,9 +2,19 @@
   [bounds]="mapBounds"></app-map-element> -->
 
 <app-layer-info [mapLayer]="layer"></app-layer-info>
+<app-layer-legend [mapLayer]="layer"></app-layer-legend>
 
 <app-layer-list [layers]="planLayers" [selectedLayer]="layer"></app-layer-list>
+<app-layer-detail [mapLayer]="layer"></app-layer-detail>
+<app-battery-info [mapLayer]="layer"></app-battery-info>
 
-<div class="map-container">
+<div class="map-container" #mapContainer>
   <app-leaflet-map [center]="mapCenter" [zoom]="mapZoom" [layers]="planLayers"></app-leaflet-map>
 </div>
+
+<div class="scenarioText" #scenarioText>{{ scenario.name.toUpperCase() }}</div>
+<div class="islandText" #islandText>{{ planName.toUpperCase() }}</div>
+<div class="yearText" #yearText> YEAR </div>
+<div class="reText" #reText>RE 80%</div>
+
+<h1 class="title"> HAVEN</h1>

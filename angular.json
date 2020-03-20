@@ -31,7 +31,8 @@
             "scripts": [
               "node_modules/chart.js/dist/Chart.bundle.min.js",
               "node_modules/chartjs-plugin-annotation/chartjs-plugin-annotation.min.js",
-              "node_modules/chartjs-plugin-labels/build/chartjs-plugin-labels.min.js"
+              "node_modules/chartjs-plugin-labels/build/chartjs-plugin-labels.min.js",
+              "node_modules/circletype/dist/circletype.min.js"
             ],
             "customWebpackConfig": {
               "path": "./angular.webpack.js"

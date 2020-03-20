@@ -1,7 +1,8 @@
-import { Component, AfterViewInit, ViewChild, ChangeDetectorRef, ElementRef } from '@angular/core';
+import { Component, AfterViewInit, ViewChild, ChangeDetectorRef, ElementRef, Renderer2 } from '@angular/core';
 import { MapElementComponent } from 'src/app/modules/maps';
 import { PlanStateService, MapLayer, ElementSize, ElementPosition, Scenario, WindowService, PlanConfig, PlanConfigService } from '@app/core';
 import { PieChartComponent, LineChartComponent, ChartData } from '@app/charts';
+import * as CircleType from 'circletype';
 
 @Component({
   selector: 'app-secondscreen-view',
@@ -19,6 +20,8 @@ export class SecondscreenViewComponent implements AfterViewInit {
 
   @ViewChild('map', { static: false }) map: MapElementComponent;
   @ViewChild('map', { static: false, read: ElementRef }) mapDiv: ElementRef;
+  @ViewChild('mapContainer', { static: false, read: ElementRef }) mapContainer: ElementRef;
+  
   mapPosition: ElementPosition;
   mapSize: ElementSize;
   mapBounds: [[number, number], [number, number]];
@@ -30,7 +33,13 @@ export class SecondscreenViewComponent implements AfterViewInit {
   mapCenter = [-157.647, 21.252]
   mapZoom = 10;
 
-  constructor(private planService: PlanStateService, private planConfigService: PlanConfigService, private detectorRef: ChangeDetectorRef, private electronService: WindowService) {
+  @ViewChild('scenarioText', { static: false, read: ElementRef }) scenarioText: ElementRef;
+  scenarioCircle: any;
+  @ViewChild('yearText', { static: false, read: ElementRef }) yearText: ElementRef;
+  @ViewChild('islandText', { static: false, read: ElementRef }) islandText: ElementRef;
+  @ViewChild('reText', { static: false, read: ElementRef }) reText: ElementRef;
+
+  constructor(private planService: PlanStateService, private planConfigService: PlanConfigService, private detectorRef: ChangeDetectorRef, private electronService: WindowService,   private renderer: Renderer2) {
     this.scenario = this.planService.getCurrentScenario();
     this.layer = this.planService.getCurrentLayer();
     this.year = this.planService.getCurrentYear();
@@ -45,6 +54,26 @@ export class SecondscreenViewComponent implements AfterViewInit {
   }
 
   ngAfterViewInit(): void {
+    const radius = this.mapContainer.nativeElement.getBoundingClientRect().width / 2 + 15;
+    const x = Math.cos(40 * (Math.PI/180)) * radius;
+    const y = Math.sin(40 * (Math.PI/180)) * radius;
+
+    this.scenarioCircle = new CircleType(this.scenarioText.nativeElement);
+    this.scenarioCircle.radius(radius).dir(1);
+    this.renderer.setStyle(this.scenarioText.nativeElement, 'transform', `translate(${Math.trunc(-x)}px, ${Math.trunc(-y)}px) rotate(-53deg)`);
+
+    const yearCircle = new CircleType(this.yearText.nativeElement);
+    yearCircle.radius(radius).dir(1);
+    this.renderer.setStyle(this.yearText.nativeElement, 'transform', `translate(${Math.trunc(x)}px, ${Math.trunc(-y)}px) rotate(53deg)`);
+
+    const islandCircle = new CircleType(this.islandText.nativeElement);
+    islandCircle.radius(radius).dir(-1);
+    this.renderer.setStyle(this.islandText.nativeElement, 'transform', `translate(${-x}px, ${y}px) rotate(53deg)`);
+
+    const reCircle = new CircleType(this.reText.nativeElement);
+    reCircle.radius(radius).dir(-1);
+    this.renderer.setStyle(this.reText.nativeElement, 'transform', `translate(${x}px, ${y}px) rotate(-53deg)`);
+
 
     // this.positionMap(this.mapPosition);
     // this.sizeMap(this.mapSize);
@@ -61,15 +90,17 @@ export class SecondscreenViewComponent implements AfterViewInit {
     });
 
     this.planService.currentScenarioSub.subscribe(scenario => {
+      console.log(scenario);
       this.scenario = scenario;
-      this.changeData();
+      this.updateSceanario();
       this.detectorRef.detectChanges();
     });
 
     this.planService.currentLayerSub.subscribe(layer => {
       this.layer = layer;
-      console.log('layer');
-      this.map.updateLayers();
+      if (this.map) {
+        this.map.updateLayers();
+      }
       this.detectorRef.detectChanges();
     });
 
@@ -90,7 +121,19 @@ export class SecondscreenViewComponent implements AfterViewInit {
     })
   }
 
+  updateSceanario() {
+    this.scenarioText.nativeElement.innerText = this.scenario.displayName;
+    const radius = this.mapContainer.nativeElement.getBoundingClientRect().width / 2 + 15;
+    const x = Math.cos(40 * (Math.PI/180)) * radius;
+    const y = Math.sin(40 * (Math.PI/180)) * radius;
+    this.scenarioCircle = new CircleType(this.scenarioText.nativeElement);
+    this.scenarioCircle.radius(radius).dir(1);
+    this.renderer.setStyle(this.scenarioText.nativeElement, 'transform', `translate(${Math.trunc(-x)}px, ${Math.trunc(-y)}px) rotate(-56deg)`);
+  }
+
   updateYear(year: number) {
+    this.yearText.nativeElement.innerText = this.year.toString();
+    this.detectorRef.detectChanges();
     if (this.map) {
       this.map.updateLayers();
     }

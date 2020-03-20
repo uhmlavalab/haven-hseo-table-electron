@@ -10,10 +10,10 @@ export class SecondscreenMainMenuComponent implements OnInit {
 
   text = 'Main Menu';
 
-  constructor() { }
+  constructor(private planService: PlanStateService) { }
 
   ngOnInit(): void {
-
+    this.planService.changePlan('oahu');
   }
 
 }

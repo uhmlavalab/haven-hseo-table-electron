@@ -42,7 +42,8 @@ export class InputService {
 
     // Any Other
     ipcRenderer.on('input-message', (event, message) => {
-      this.inputSub.next(message.input as AppInput);
+      console.log(message)
+      this.inputSub.next(message as AppInput);
     });
   }
 

@@ -20,6 +20,9 @@ import { SecondscreenMainMenuComponent } from './routes/secondscreen-main-menu/s
 //Components
 import { LayerInfoComponent } from './components/layer-info/layer-info.component';
 import { LayerListComponent } from './components/layer-list/layer-list.component';
+import { LayerLegendComponent } from './components/layer-legend/layer-legend.component';
+import { BatteryInfoComponent } from './components/battery-info/battery-info.component';
+import { LayerDetailComponent } from './components/layer-detail/layer-detail.component';
 
 @NgModule({
   declarations: [
@@ -29,7 +32,10 @@ import { LayerListComponent } from './components/layer-list/layer-list.component
     LayerInfoComponent,
     SecondscreenPlanSelectionComponent,
     SecondscreenMainMenuComponent,
-    LayerListComponent
+    LayerListComponent,
+    LayerLegendComponent,
+    BatteryInfoComponent,
+    LayerDetailComponent
   ],
   imports: [
     CommonModule,

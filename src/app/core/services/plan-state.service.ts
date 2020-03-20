@@ -137,8 +137,6 @@ export class PlanStateService {
   }
 
   private stateUpdate(update: StateUpdate) {
-    console.log(update);
-
     ipcRenderer.send('state-message', update);
   }
 
@@ -156,6 +154,7 @@ export class PlanStateService {
 
   private setYear(year: number) {
     this.currentYear = year;
+    console.log(year);
     this.currentYearSub.next(this.currentYear);
   }
 
@@ -198,7 +197,7 @@ export class PlanStateService {
   public previousScenario() {
     let currIdx = this.scenarios.findIndex(el => el.name === this.currentScenario.name);
     currIdx -= 1;
-    if (currIdx < 0) currIdx = this.layers.length - 1;
+    if (currIdx < 0) currIdx = this.scenarios.length - 1;
     this.currentScenario = this.scenarios[currIdx];
     this.stateUpdate({ type: StateUpdateType.scenario, value: this.currentScenario });
   }
@@ -206,7 +205,7 @@ export class PlanStateService {
   public nextScenario() {
     let currIdx = this.scenarios.findIndex(el => el.name === this.currentScenario.name);
     currIdx++;
-    if (currIdx >= this.layers.length) currIdx = 0;
+    if (currIdx >= this.scenarios.length) currIdx = 0;
     this.currentScenario = this.scenarios[currIdx];
     this.stateUpdate({ type: StateUpdateType.scenario, value: this.currentScenario });
   }

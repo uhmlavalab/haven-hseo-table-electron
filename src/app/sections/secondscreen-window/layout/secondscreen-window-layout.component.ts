@@ -23,6 +23,27 @@ export class SecondscreenWindowLayoutComponent implements OnInit {
     this.inputService.registerKeyboardEvent({ keyname: '-', eventFunction: () =>this.inputService.sendInput(AppInput.minus) });
     this.inputService.registerKeyboardEvent({ keyname: 'Enter', eventFunction: () => this.inputService.sendInput(AppInput.enter) });
     
+    this.inputService.inputSub.subscribe(input => {
+      if (AppInput.left == input) {
+        this.planService.decrementNextLayer();
+      }
+      if (AppInput.right == input) {
+        this.planService.incrementNextLayer();
+      }
+      if (AppInput.up == input) {
+        this.planService.incrementCurrentYear();
+      }
+      if (AppInput.down == input) {
+        this.planService.decrementCurrentYear();
+      }
+      if (AppInput.plus == input) {
+        this.planService.previousScenario();
+      }
+      if (AppInput.minus == input) {
+        this.planService.nextScenario();
+      }
+    });
+
     this.electronMessageSub = this.electronService.windowMessageSubject.subscribe(message => {
       if (!message) return;
       if (message.type == 'reroute') {
@@ -34,6 +55,8 @@ export class SecondscreenWindowLayoutComponent implements OnInit {
         })
       }
     })
+
+
   }
 
   ngOnInit(): void {

@@ -129,7 +129,7 @@ export class MapViewComponent implements AfterViewInit {
 
     this.mapDiv.nativeElement.addEventListener("wheel", (event) => {
       const resize = (event.deltaY > 0) ? 4 : -4;
-      this.mapResize(resize);
+      // this.mapResize(resize);
     });
 
     this.lineDiv.nativeElement.addEventListener("wheel", (event) => {

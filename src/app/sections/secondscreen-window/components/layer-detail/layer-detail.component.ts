@@ -1,18 +1,12 @@
 import { Component, OnInit, Input, OnChanges, SimpleChanges } from '@angular/core';
 import { MapLayer } from '@app/core';
 
-export interface LegendItem  {
-  name: string;
-  color: string;
-}
-
 @Component({
-  selector: 'app-layer-info',
-  templateUrl: './layer-info.component.html',
-  styleUrls: ['./layer-info.component.css']
+  selector: 'app-layer-detail',
+  templateUrl: './layer-detail.component.html',
+  styleUrls: ['./layer-detail.component.css']
 })
-export class LayerInfoComponent implements OnInit, OnChanges {
-
+export class LayerDetailComponent implements OnInit {
   @Input() mapLayer: MapLayer;
   layerName = 'Agriculture';
 
@@ -22,9 +16,9 @@ export class LayerInfoComponent implements OnInit, OnChanges {
   }
 
   ngOnChanges(changes: SimpleChanges) {
-    if(changes.mapLayer) {
+    if (changes.mapLayer) {
       this.mapLayer = changes.mapLayer.currentValue;
-     }
+    }
   }
 
 }

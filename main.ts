@@ -244,7 +244,7 @@ function passInputMessage(input: AppInput) {
     mapWindow.webContents.send('input-message', input);
   }
   if (puckWindow) {
-    mapWindow.webContents.send('input-message', input);
+    puckWindow.webContents.send('input-message', input);
   }
   if (secondWindow) {
     secondWindow.webContents.send('input-message', input);
