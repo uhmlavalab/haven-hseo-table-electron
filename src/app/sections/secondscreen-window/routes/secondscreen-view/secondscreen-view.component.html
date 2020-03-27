@@ -6,10 +6,10 @@
 
 <app-layer-list [layers]="planLayers" [selectedLayer]="layer"></app-layer-list>
 <app-layer-detail [mapLayer]="layer"></app-layer-detail>
-<app-battery-info [mapLayer]="layer"></app-battery-info>
+<app-battery-info></app-battery-info>
 
 <div class="map-container" #mapContainer>
-  <app-leaflet-map [center]="mapCenter" [zoom]="mapZoom" [layers]="planLayers"></app-leaflet-map>
+  <app-arcgis-map [center]="mapCenter" [zoom]="mapZoom" [layers]="planLayers"></app-arcgis-map>
 </div>
 
 <div class="scenarioText" #scenarioText>{{ scenario.name.toUpperCase() }}</div>

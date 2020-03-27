@@ -1,5 +1,4 @@
 import { Component, OnInit, Input } from '@angular/core';
-import { MapLayer } from '@app/core';
 
 @Component({
   selector: 'app-battery-info',
@@ -8,7 +7,6 @@ import { MapLayer } from '@app/core';
 })
 export class BatteryInfoComponent implements OnInit {
 
-  @Input() mapLayer: MapLayer;
   constructor() { }
 
   ngOnInit(): void {

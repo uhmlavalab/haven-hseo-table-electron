@@ -54,7 +54,12 @@ export class LeafletMapComponent implements OnInit {
     this.map.setZoom(this.zoom);
     this.layers.forEach(layer => {
       d3.json(layer.filePath, (error, geoData) => {
-        L.geoJSON(geoData).addTo(map);
+        const d = new L.GeoJSON(geoData);
+        d.setStyle({fillColor : layer.fillColor})
+        d.setStyle({color : 'white'})
+        d.setStyle({fillOpacity : 0.8})
+        d.setStyle({weight :2})
+        d.addTo(map);
       })
     });
   }

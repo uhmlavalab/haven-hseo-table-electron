@@ -8,9 +8,10 @@
   grid-area: menu;
 }
 
-.item2 > img {
+.item2>img {
   height: 10vh;
 }
+
 .item3 {
   grid-area: main;
 }
@@ -18,8 +19,8 @@
 .grid-container {
   display: grid;
   grid-template-areas:
-    'header header header header header header'
     'menu menu menu menu menu menu'
+    'header header header header header header'
     'main main main main main main';
   grid-gap: 10px;
   width: 100%;

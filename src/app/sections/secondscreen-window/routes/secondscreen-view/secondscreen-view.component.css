@@ -9,7 +9,7 @@ app-layer-info {
   top: 2rem;
   width: 25vw;
   height: 50vh;
-  border: solid 3px white;
+  /* border: solid 3px white; */
   overflow: hidden;
 }
 
@@ -19,7 +19,7 @@ app-layer-detail {
   top: 2rem;
   width: 25vw;
   height: 50vh;
-  border: solid 3px white;
+  /* border: solid 3px white; */
   overflow: hidden;
 }
 
@@ -30,7 +30,7 @@ app-layer-legend {
   top: calc(2rem + 50vh + 1rem);
   width: 25vw;
   height: 30vh;
-  border: solid 3px white;
+  /* border: solid 3px white; */
   overflow: hidden;
 }
 
@@ -40,7 +40,7 @@ app-battery-info {
   top: calc(2rem + 50vh + 1rem);
   width: 25vw;
   height: 30vh;
-  border: solid 3px white;
+  /* border: solid 3px white; */
   overflow: hidden;
 }
 
